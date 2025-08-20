@@ -1,0 +1,14 @@
+/.idea
+**/__pycache__/
+
+# Ignore environment variable files anywhere in the project
+*.env
+**/.env
+
+# Ignore virtual environment directories
+env/
+**/env/
+
+# Ignre .vscode directory
+.vscode/
+**/.vscode/
