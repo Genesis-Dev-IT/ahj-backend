@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('last_name', models.CharField(max_length=100)),
                 ('email', models.EmailField(max_length=255, unique=True)),
                 ('password_hash', models.TextField()),
-                ('created_on', models.BigIntegerField(default=genesis.utils.current_timestamp)),
+                ('created_at', models.BigIntegerField(default=genesis.utils.current_timestamp)),
             ],
             options={
                 'db_table': 'user',

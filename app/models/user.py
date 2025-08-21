@@ -7,7 +7,7 @@ class User(models.Model):
     last_name = models.CharField(max_length=100)
     email = models.EmailField(unique=True, max_length=255)
     password_hash = models.TextField()
-    created_on = models.BigIntegerField(default=current_timestamp)
+    created_at = models.BigIntegerField(default=current_timestamp)
 
     class Meta:
         db_table = "user"
