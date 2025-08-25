@@ -14,7 +14,6 @@ from django.shortcuts import get_object_or_404
 class APITokenDetailView(View):
     def post(self, request):
         try:
-            # i will get type of plan, user_id
             body = JSONParser().parse(request)
             plan = body.get("plan", None)
             user_id = body.get("user_id", None)
