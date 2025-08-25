@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
-
+from genesis.utils import current_timestamp
 
 def validate_admin_email(user):
     """
@@ -17,8 +17,8 @@ class User(models.Model):
     email = models.EmailField(unique=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-    created_at = models.BigIntegerField()
-    updated_at = models.BigIntegerField()
+    created_at = models.BigIntegerField(default=current_timestamp)
+    updated_at = models.BigIntegerField(default=current_timestamp)
 
     class Meta:
         db_table = "user"
