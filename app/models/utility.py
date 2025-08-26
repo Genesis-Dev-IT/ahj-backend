@@ -131,7 +131,7 @@ class UtilityProductionMeterRequirement(models.Model):
     updated_at = models.BigIntegerField(default=current_timestamp)
 
     class Meta:
-        db_table = "production_meter_requirement"
+        db_table = "utility_production_meter_requirement"
 
     def save(self, *args, **kwargs):
         """Update 'updated_at' every time the object is saved."""
@@ -142,7 +142,7 @@ class UtilityProductionMeterRequirement(models.Model):
         return f"Utility Production Meter Requirement for {self.utility.name} (ID: {self.id})"
     
 
-class ZipcodeUtility(models.Model):
+class ZipcodeUtilityMapping(models.Model):
     id = models.BigAutoField(primary_key=True)
     utility = models.ForeignKey(Utility, on_delete=models.CASCADE)
     zipcode = models.CharField(max_length=20, db_index=True)
@@ -152,7 +152,7 @@ class ZipcodeUtility(models.Model):
     updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="zipcode_utility_updated")
 
     class Meta:
-        db_table = "zipcode_utility"
+        db_table = "zipcode_utility_mapping"
         unique_together = ("zipcode", "utility")
         indexes = [
             models.Index(fields=["zipcode", "utility"]),

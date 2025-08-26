@@ -76,7 +76,7 @@ class AHJSpecificRequirement(models.Model):
 class AHJElectricalRequirement(models.Model):
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE)
-    ee_stamp_requirement = models.CharField(max_length=50, default='none')  # strctural, electrical, structural&electrical, none 
+    ee_stamp_requirement = models.CharField(max_length=50, default='none')  # structural, electrical, structural&electrical, none 
     ee_stamp_for_main_breaker_derate = models.BooleanField(default=False)
     pv_meter_required = models.BooleanField(default=False)
     ac_disconnect_type = models.CharField(max_length=20, null=True, blank=True) # fused, non-fused 
@@ -119,7 +119,7 @@ class AHJGroundMountRequirement(models.Model):
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE)
     
-    soil_class = models.CharField(max_length=20, help_text="Soil classification")  #clay, gravel, rock
+    soil_class = models.CharField(null=True, max_length=20, help_text="Soil classification")  #clay, gravel, rock
     freeze_depth = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Maximum freeze depth in feet")
     thaw_depth = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Depth to which soil thaws in feet")
     setback_front = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Front yard setback in feet")
@@ -141,7 +141,7 @@ class AHJGroundMountRequirement(models.Model):
     def __str__(self):
         return f"Ground Mount Requirement for {self.ahj.name} (ID: {self.id})"
     
-class ZipcodeAHJ(models.Model):
+class ZipcodeAHJMapping(models.Model):
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE)
     zipcode = models.CharField(max_length=20, db_index=True)
@@ -151,7 +151,7 @@ class ZipcodeAHJ(models.Model):
     updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="zipcode_ahj_updated")
 
     class Meta:
-        db_table = "zipcode_ahj"
+        db_table = "zipcode_ahj_mapping"
         unique_together = ("zipcode", "ahj")
         indexes = [
             models.Index(fields=["zipcode", "ahj"]),

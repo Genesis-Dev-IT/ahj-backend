@@ -84,7 +84,7 @@ class Migration(migrations.Migration):
                 ('utility', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.utility')),
             ],
             options={
-                'db_table': 'production_meter_requirement',
+                'db_table': 'utility_production_meter_requirement',
             },
         ),
         migrations.CreateModel(
@@ -108,7 +108,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='ZipcodeUtility',
+            name='ZipcodeUtilityMapping',
             fields=[
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('zipcode', models.CharField(db_index=True, max_length=20)),
@@ -119,7 +119,7 @@ class Migration(migrations.Migration):
                 ('utility', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.utility')),
             ],
             options={
-                'db_table': 'zipcode_utility',
+                'db_table': 'zipcode_utility_mapping',
                 'indexes': [models.Index(fields=['zipcode', 'utility'], name='zipcode_uti_zipcode_32f1d7_idx')],
                 'unique_together': {('zipcode', 'utility')},
             },

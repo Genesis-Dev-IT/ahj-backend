@@ -1,9 +1,9 @@
 from .user import User
 from .ahj import (
     AHJ, AHJRequirement, AHJSpecificRequirement, AHJElectricalRequirement, AHJStructuralSetbackRequirement, 
-    AHJGroundMountRequirement, ZipcodeAHJ
+    AHJGroundMountRequirement, ZipcodeAHJMapping
     )
 
 from .utility import(
-    Utility, UtilityRequirement, UtilityICApplicationRequirement, UtilityData, UtilityProductionMeterRequirement, ZipcodeUtility
+    Utility, UtilityRequirement, UtilityICApplicationRequirement, UtilityData, UtilityProductionMeterRequirement, ZipcodeUtilityMapping
 )
