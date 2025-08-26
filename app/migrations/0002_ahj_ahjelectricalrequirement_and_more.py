@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
             name='AHJGroundMountRequirement',
             fields=[
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('soil_class', models.CharField(help_text='Soil classification', max_length=20)),
+                ('soil_class', models.CharField(help_text='Soil classification', max_length=20, null=True)),
                 ('freeze_depth', models.DecimalField(blank=True, decimal_places=2, help_text='Maximum freeze depth in feet', max_digits=6, null=True)),
                 ('thaw_depth', models.DecimalField(blank=True, decimal_places=2, help_text='Depth to which soil thaws in feet', max_digits=6, null=True)),
                 ('setback_front', models.DecimalField(blank=True, decimal_places=2, help_text='Front yard setback in feet', max_digits=6, null=True)),
@@ -115,7 +115,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='ZipcodeAHJ',
+            name='ZipcodeAHJMapping',
             fields=[
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('zipcode', models.CharField(db_index=True, max_length=20)),
@@ -126,7 +126,7 @@ class Migration(migrations.Migration):
                 ('updated_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='zipcode_ahj_updated', to='app.user')),
             ],
             options={
-                'db_table': 'zipcode_ahj',
+                'db_table': 'zipcode_ahj_mapping',
                 'indexes': [models.Index(fields=['zipcode', 'ahj'], name='zipcode_ahj_zipcode_fc6718_idx')],
                 'unique_together': {('zipcode', 'ahj')},
             },
