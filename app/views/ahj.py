@@ -4,19 +4,21 @@ from django.views import View
 from django.http import JsonResponse
 from app.models import (
         AHJ, AHJElectricalRequirement, AHJGroundMountRequirement, 
-        AHJRequirement, AHJSpecificRequirement, AHJStructuralSetbackRequirement
+        AHJRequirement, AHJSpecificRequirement, AHJStructuralSetbackRequirement, ApiUsage
     )
 from rest_framework.parsers import JSONParser
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.http import Http404
-from genesis.utils import chain_errors
 from app.serializer import (
     AHJDetailSerializer, AHJRequirementSerializer, AHJElectricalRequirementSerializer, AHJGroundMountRequirementSerializer,
     AHJSpecificRequirementSerializer, AHJStructuralSetbackRequirementSerializer
 )
+from app.mixins import ApiTokenValidityCheckMixin
+import logging
+logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name="dispatch")
-class AHJDetailView(View):
+class AHJDetailView(ApiTokenValidityCheckMixin, View):
     def get(self, request, id):
         try:
             ahj = get_object_or_404(AHJ, id=id)
@@ -54,6 +56,16 @@ class AHJDetailView(View):
                 ahj_ground_mount_requirement_serializer = AHJGroundMountRequirementSerializer(ahj_ground_mount_requirement)
                 data["ahj_ground_mount_requirement"] = ahj_ground_mount_requirement_serializer.data
             
+            # create entry in api_usage after successfull api hit
+            try:
+                ApiUsage.objects.create(
+                    user=request.api_token.user,
+                    api_name="getAHJInfoForAhjId",
+                    data_id=id,
+                )
+            except Exception as e:
+                logger.error(f"Failed to log API usage: {e}", exc_info=True)
+
             return JsonResponse(
                 {
                     "error":None,
@@ -69,7 +81,7 @@ class AHJDetailView(View):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
-            print("Unexpected error:", e)
+            logger.error(f"Failed to get AHJ info: {e}", exc_info=True)
             return JsonResponse({
                 "error": "SERVER_ERROR",
                 "message": "Something went wrong while fetching user. Please try again later."
