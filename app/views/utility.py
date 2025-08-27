@@ -3,7 +3,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views import View
 from django.http import JsonResponse
 from app.models import (
-        Utility, UtilityData, UtilityICApplicationRequirement, UtilityProductionMeterRequirement, UtilityRequirement
+        Utility, UtilityData, UtilityICApplicationRequirement, UtilityProductionMeterRequirement, UtilityRequirement,
+        ApiUsage
     )
 from rest_framework.parsers import JSONParser
 from rest_framework import status
@@ -13,8 +14,12 @@ from app.serializer import (
     UtilityDataSerializer, UtilityDetailSerializer, UtilityICApplicationRequirementSerializer, UtilityProductionMeterRequirementSerializer,
     UtilityRequirementSerializer
 )
+from app.mixins import ApiTokenValidityCheckMixin
+import logging
+logger = logging.getLogger(__name__)
+
 @method_decorator(csrf_exempt, name="dispatch")
-class UtilityDetailView(View):
+class UtilityDetailView(ApiTokenValidityCheckMixin, View):
     def get(self, request, id):
         try:
             utility = get_object_or_404(Utility, id=id)
@@ -47,6 +52,16 @@ class UtilityDetailView(View):
                 utility_production_meter_requirement_serialzer = UtilityProductionMeterRequirementSerializer(utility_production_meter_requirement)
                 data["utility_production_meter_requirement"] = utility_production_meter_requirement_serialzer.data 
             
+            # create entry in api_usage after successfull api hit
+            try:
+                ApiUsage.objects.create(
+                    user=request.api_token.user,
+                    api_name="getUtilityInfoForUtilityId",
+                    data_id=id,
+                )
+            except Exception as e:
+                logger.error(f"Failed to log API usage: {e}", exc_info=True)
+
             return JsonResponse(
                 {
                     "error":None,
@@ -62,7 +77,7 @@ class UtilityDetailView(View):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
-            print("Unexpected error:", e)
+            logger.error(f"Failed to get Utility info: {e}", exc_info=True)
             return JsonResponse({
                 "error": "SERVER_ERROR",
                 "message": "Something went wrong while fetching user. Please try again later."
