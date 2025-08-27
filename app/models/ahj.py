@@ -142,22 +142,13 @@ class AHJGroundMountRequirement(models.Model):
         return f"Ground Mount Requirement for {self.ahj.name} (ID: {self.id})"
     
 class ZipcodeAHJMapping(models.Model):
-    id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE)
     zipcode = models.CharField(max_length=20, db_index=True)
-    created_at = models.BigIntegerField(default=current_timestamp)
-    updated_at = models.BigIntegerField(default=current_timestamp)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="zipcode_ahj_created")
-    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="zipcode_ahj_updated")
-
     class Meta:
         db_table = "zipcode_ahj_mapping"
-        unique_together = ("zipcode", "ahj")
+        constraints = [
+            models.UniqueConstraint(fields=["zipcode", "ahj"], name="unique_zipcode_ahj")
+        ]
         indexes = [
             models.Index(fields=["zipcode", "ahj"]),
         ]
-
-    def save(self, *args, **kwargs):
-        """Update 'updated_at' every time the object is saved."""
-        self.updated_at = current_timestamp()
-        super().save(*args, **kwargs)

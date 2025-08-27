@@ -127,7 +127,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'db_table': 'zipcode_ahj_mapping',
-                'indexes': [models.Index(fields=['zipcode', 'ahj'], name='zipcode_ahj_zipcode_fc6718_idx')],
+                'indexes': [models.Index(fields=['zipcode', 'ahj'], name='zipcode_ahj_zipcode_e4b09c_idx')],
                 'unique_together': {('zipcode', 'ahj')},
             },
         ),

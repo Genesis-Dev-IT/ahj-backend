@@ -143,22 +143,14 @@ class UtilityProductionMeterRequirement(models.Model):
     
 
 class ZipcodeUtilityMapping(models.Model):
-    id = models.BigAutoField(primary_key=True)
     utility = models.ForeignKey(Utility, on_delete=models.CASCADE)
     zipcode = models.CharField(max_length=20, db_index=True)
-    created_at = models.BigIntegerField(default=current_timestamp)
-    updated_at = models.BigIntegerField(default=current_timestamp)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="zipcode_utility_created")
-    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="zipcode_utility_updated")
-
+    
     class Meta:
         db_table = "zipcode_utility_mapping"
-        unique_together = ("zipcode", "utility")
+        constraints = [
+            models.UniqueConstraint(fields=["zipcode", "utility"], name="unique_zipcode_utility")
+        ]
         indexes = [
             models.Index(fields=["zipcode", "utility"]),
         ]
-
-    def save(self, *args, **kwargs):
-        """Update 'updated_at' every time the object is saved."""
-        self.updated_at = current_timestamp()
-        super().save(*args, **kwargs)
