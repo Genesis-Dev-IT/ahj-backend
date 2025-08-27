@@ -120,7 +120,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'db_table': 'zipcode_utility_mapping',
-                'indexes': [models.Index(fields=['zipcode', 'utility'], name='zipcode_uti_zipcode_32f1d7_idx')],
+                'indexes': [models.Index(fields=['zipcode', 'utility'], name='zipcode_uti_zipcode_dcc9d2_idx')],
                 'unique_together': {('zipcode', 'utility')},
             },
         ),
