@@ -71,7 +71,7 @@ class ApiUsage(models.Model):
     class Meta:
         db_table = "api_usage"
         indexes = [
-            models.Index(fields=["user", "api_name", "created_at"]),
+            models.Index(fields=["user", "created_at"]),
         ]
 
     def __str__(self):

@@ -1,0 +1,213 @@
+{
+	"info": {
+		"_postman_id": "f64a52b0-28c0-4c00-aa9f-3aede7021669",
+		"name": "AHJ",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "24066620"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"0": {
+									"key": "token",
+									"value": "{{access_key}}",
+									"type": "string"
+								},
+								"token": ""
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8000/app/health"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "API Token",
+			"item": [
+				{
+					"name": "Create Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\":2,\n    \"plan\":\"basic\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8000/app/v1/token"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Token",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\":2,\n    \"active\":true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8000/app/v1/token"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Token",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\":2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8000/app/v1/token"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Get User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{host}}/app/v1/user/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\":\"Rahul1\",\n    \"last_name\":\"Kumar1\",\n    \"email\":\"rahul1@gmail.com\",\n    \"is_admin\":false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{host}}/app/v1/user"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"is_active\":true,\n    \"last_name\":\"Dhzyani\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{host}}/app/v1/user/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{host}}/app/v1/user/1"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AHJ",
+			"item": [
+				{
+					"name": "Get AHJ",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"0": {
+									"key": "token",
+									"value": "{{access_key}}",
+									"type": "string"
+								},
+								"token": "6936de81-c2a2-463d-8ddf-072f061a4e87"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"is_active\":true,\n    \"last_name\":\"Dhyani\"\n}"
+						},
+						"url": "{{host}}/app/v1/ahj/1"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Utility",
+			"item": [
+				{
+					"name": "Get Utility",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{host}}/app/v1/utility/1"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ZipCode AHJ Utility Mapping",
+			"item": [
+				{
+					"name": "Get AHJ_Utilitys",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{host}}/app/v1/zipcode/123456"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

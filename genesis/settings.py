@@ -85,6 +85,17 @@ DATABASES = {
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
         "HOST": os.getenv("POSTGRES_HOST"),
         "PORT": os.getenv("DB_PORT"),
+        "OPTIONS": {
+            "options": "-c search_path=ahj_schema"
+        },
+    },
+    "ahj_schema": {
+        'ENGINE': 'django.db.backends.postgresql',
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "HOST": os.getenv("POSTGRES_HOST"),
+        "PORT": os.getenv("DB_PORT"),
     }
 }
 

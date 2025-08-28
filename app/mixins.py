@@ -49,10 +49,6 @@ class ApiTokenValidityCheckMixin:
             }, status=403)
 
         # 4. Quota check from ApiUsage table
-        
-        # validity_days = api_token.plan.validity_days
-        # start_window = current_timestamp() - (validity_days * 24 * 60 * 60 * 1000)
-
         usage_count = ApiUsage.objects.filter(
             user=api_token.user,
             created_at__gte=api_token.created_at,

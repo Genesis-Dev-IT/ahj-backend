@@ -1,15 +1,20 @@
 from django.db import models
 from genesis.utils import current_timestamp
 from app.models import User
+from django.db.models import Q
+from .state import State, StateSpecificInformation
+
 class AHJ(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    type = models.CharField(max_length=50, db_index=True)  # City/Twp, State, Country 
-    state_code = models.CharField(max_length=10, db_index=True)
-    state = models.CharField(max_length=100)
+    type = models.CharField(max_length=50, db_index=True)  # City/Twp, State, County 
+    state = models.ForeignKey(State, on_delete=models.CASCADE)
+    country = models.CharField(max_length=100, default="USA")
     building_code = models.CharField(max_length=100, blank=True, null=True)
-    electrical_code = models.CharField(max_length=100, blank=True, null=True)
-    state_specific_code = models.BooleanField(null=True, blank=True)
+    state_specific_ic = models.ForeignKey(StateSpecificInformation, on_delete=models.CASCADE) 
+    nec_code = models.CharField(max_length=100, blank=True, null=True)
+    nfpa_code = models.CharField(max_length=100, blank=True, null=True)
+    notes = models.TextField(null=True, blank=True)
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="ahj_created")
@@ -17,6 +22,12 @@ class AHJ(models.Model):
 
     class Meta:
         db_table = "ahj"
+        constraints = [
+            models.CheckConstraint(
+                check=Q(type__in=["city", "twp", "state", "county", "other"]),
+                name="location_type_valid",
+            ),
+        ]
 
     def save(self, *args, **kwargs):
         """Update 'updated_at' every time the object is saved."""
@@ -25,7 +36,6 @@ class AHJ(models.Model):
 
     def __str__(self):
         return self.name
-
 
 
 class AHJRequirement(models.Model):
@@ -76,7 +86,7 @@ class AHJSpecificRequirement(models.Model):
 class AHJElectricalRequirement(models.Model):
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE)
-    ee_stamp_requirement = models.CharField(max_length=50, default='none')  # structural, electrical, structural&electrical, none 
+    stamp_required = models.BooleanField(default=False, help_text="Does electrical work require an engineer stamp?")
     ee_stamp_for_main_breaker_derate = models.BooleanField(default=False)
     pv_meter_required = models.BooleanField(default=False)
     ac_disconnect_type = models.CharField(max_length=20, null=True, blank=True) # fused, non-fused 
@@ -85,6 +95,12 @@ class AHJElectricalRequirement(models.Model):
 
     class Meta:
         db_table = "ahj_electrical_requirement"
+        constraints = [
+            models.CheckConstraint(
+                check=Q(ac_disconnect_type__in=["fused", "non-fused"]),
+                name="ac_disconnect_type_valid",
+            ),
+        ]
 
     def save(self, *args, **kwargs):
         """Update 'updated_at' every time the object is saved."""
@@ -94,11 +110,10 @@ class AHJElectricalRequirement(models.Model):
     def __str__(self):
         return f"Electrical Requirement for {self.ahj.name} (ID: {self.id})"
     
-
 class AHJStructuralSetbackRequirement(models.Model):
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE)
-    wet_stamp_requirement = models.CharField(max_length=50, default='none', help_text="Type of wet stamp required for plans")  # strctural, electrical, structural&electrical, none
+    stamp_required = models.BooleanField(default=False, help_text="Does structural work require an engineer stamp?")
     fire_setback_distance = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Fire setback in feet (if specified)")
     fire_setback_code_year = models.IntegerField(null=True, blank=True, help_text="Year of fire code used for determining setback") 
     created_at = models.BigIntegerField(default=current_timestamp)
@@ -132,6 +147,12 @@ class AHJGroundMountRequirement(models.Model):
 
     class Meta:
         db_table = "ahj_ground_mount_requirement"
+        constraints = [
+            models.CheckConstraint(
+                check=Q(soil_class__in=["clay", "gravel", "rock"]),
+                name="soil_class_type_valid",
+            ),
+        ]
 
     def save(self, *args, **kwargs):
         """Update 'updated_at' every time the object is saved."""
