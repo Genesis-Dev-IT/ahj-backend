@@ -7,7 +7,7 @@ class Utility(models.Model):
     name = models.CharField(max_length=255)
     email = models.EmailField(null=True, blank=True)
     state_code = models.CharField(max_length=10, db_index=True)
-    state = models.CharField(max_length=100)
+    # state = models.CharField(max_length=100)
     production_meter = models.BooleanField(null=True, blank=True)
     disconnect = models.BooleanField(null=True, blank=True)
     created_at = models.BigIntegerField(default=current_timestamp)

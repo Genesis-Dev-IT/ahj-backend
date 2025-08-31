@@ -27,8 +27,7 @@ SECRET_KEY = 'django-insecure-u@*1!%o%!@l(l8bgshoq%j#63ni+)a0)1261ca^$za%zdak*pw
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -45,6 +44,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -73,6 +73,26 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'genesis.wsgi.application'
 
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    'authorization',
+    'content-type',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+]
+
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -98,6 +118,28 @@ DATABASES = {
         "PORT": os.getenv("DB_PORT"),
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         "NAME": "gd_prod",
+#         "USER": "postgres",
+#         "PASSWORD": "kddQ47bM4f4o3zZIxFdV",
+#         "HOST": "gd-stg.cnkyssukeopr.us-east-2.rds.amazonaws.com",
+#         "PORT": 5432,
+#         "OPTIONS": {
+#             "options": "-c search_path=ahj_schema"
+#         },
+#     },
+#     "ahj_schema": {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         "NAME": "gd_prod",
+#         "USER": "postgres",
+#         "PASSWORD": "kddQ47bM4f4o3zZIxFdV",
+#         "HOST": "gd-stg.cnkyssukeopr.us-east-2.rds.amazonaws.com",
+#         "PORT": 5432,
+#     }
+# }
 
 
 # Password validation

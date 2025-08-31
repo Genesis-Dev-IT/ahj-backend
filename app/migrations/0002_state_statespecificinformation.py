@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name='State',
             fields=[
                 ('id', models.BigIntegerField(primary_key=True, serialize=False)),
-                ('abbr', models.CharField(db_index=True, max_length=10)),
+                ('code', models.CharField(db_index=True, max_length=10)),
                 ('country', models.CharField(max_length=100)),
                 ('name', models.CharField(max_length=100)),
             ],

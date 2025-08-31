@@ -18,6 +18,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=255)),
                 ('type', models.CharField(db_index=True, max_length=50)),
+                ('state_code', models.CharField(db_index=True, max_length=10, null=True)),
                 ('country', models.CharField(default='USA', max_length=100)),
                 ('building_code', models.CharField(blank=True, max_length=100, null=True)),
                 ('nec_code', models.CharField(blank=True, max_length=100, null=True)),
@@ -26,8 +27,8 @@ class Migration(migrations.Migration):
                 ('created_at', models.BigIntegerField(default=genesis.utils.current_timestamp)),
                 ('updated_at', models.BigIntegerField(default=genesis.utils.current_timestamp)),
                 ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='ahj_created', to='app.user')),
-                ('state', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.state')),
-                ('state_specific_ic', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.statespecificinformation')),
+                # ('state', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.state')),
+                # ('state_specific_ic', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.statespecificinformation')),
                 ('updated_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='ahj_updated', to='app.user')),
             ],
             options={

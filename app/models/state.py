@@ -2,7 +2,7 @@ from django.db import models
 
 class State(models.Model):
     id = models.BigIntegerField(primary_key=True)
-    abbr = models.CharField(max_length=10, db_index=True)  # e.g. "AZ"
+    code = models.CharField(max_length=10, db_index=True)  # e.g. "AZ"
     country = models.CharField(max_length=100)
     name = models.CharField(max_length=100)
 

@@ -8,10 +8,11 @@ class AHJ(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
     type = models.CharField(max_length=50, db_index=True)  # City/Twp, State, County 
-    state = models.ForeignKey(State, on_delete=models.CASCADE)
+    state_code = models.CharField(max_length=10, null=True)
+    # state = models.ForeignKey(State, on_delete=models.CASCADE)
     country = models.CharField(max_length=100, default="USA")
     building_code = models.CharField(max_length=100, blank=True, null=True)
-    state_specific_ic = models.ForeignKey(StateSpecificInformation, on_delete=models.CASCADE) 
+    # state_specific_ic = models.ForeignKey(StateSpecificInformation, on_delete=models.CASCADE)
     nec_code = models.CharField(max_length=100, blank=True, null=True)
     nfpa_code = models.CharField(max_length=100, blank=True, null=True)
     notes = models.TextField(null=True, blank=True)

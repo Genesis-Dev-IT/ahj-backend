@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=255)),
                 ('email', models.EmailField(blank=True, max_length=254, null=True)),
                 ('state_code', models.CharField(db_index=True, max_length=10)),
-                ('state', models.CharField(max_length=100)),
+                # ('state', models.CharField(max_length=100)),
                 ('production_meter', models.BooleanField(blank=True, null=True)),
                 ('disconnect', models.BooleanField(blank=True, null=True)),
                 ('created_at', models.BigIntegerField(default=genesis.utils.current_timestamp)),
