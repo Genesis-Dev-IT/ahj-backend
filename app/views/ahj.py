@@ -18,9 +18,9 @@ from app.mixins import ApiTokenValidityCheckMixin
 import logging
 logger = logging.getLogger(__name__)
 
-# ApiTokenValidityCheckMixin,
+
 @method_decorator(csrf_exempt, name="dispatch")
-class AHJDetailView(View):
+class AHJDetailView(ApiTokenValidityCheckMixin, View):
     def get(self, request, id):
         try:
             ahj = get_object_or_404(AHJ, id=id)
