@@ -8,3 +8,7 @@ from .utility_serializer import (
     UtilityRequirementSerializer, UtilityICApplicationRequirementSerializer, UtilityDataSerializer, 
     UtilityProductionMeterRequirementSerializer, UtilityDetailSerializer
 )
+
+from .state_serializer import (
+    StateSpecificInformationSerializer
+)

@@ -119,28 +119,6 @@ DATABASES = {
     }
 }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         "NAME": "gd_prod",
-#         "USER": "postgres",
-#         "PASSWORD": "kddQ47bM4f4o3zZIxFdV",
-#         "HOST": "gd-stg.cnkyssukeopr.us-east-2.rds.amazonaws.com",
-#         "PORT": 5432,
-#         "OPTIONS": {
-#             "options": "-c search_path=ahj_schema"
-#         },
-#     },
-#     "ahj_schema": {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         "NAME": "gd_prod",
-#         "USER": "postgres",
-#         "PASSWORD": "kddQ47bM4f4o3zZIxFdV",
-#         "HOST": "gd-stg.cnkyssukeopr.us-east-2.rds.amazonaws.com",
-#         "PORT": 5432,
-#     }
-# }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

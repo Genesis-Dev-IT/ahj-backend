@@ -4,7 +4,7 @@ from django.views import View
 from django.http import JsonResponse
 from app.models import (
         AHJ, AHJElectricalRequirement, AHJGroundMountRequirement, 
-        AHJRequirement, AHJSpecificRequirement, AHJStructuralSetbackRequirement, ApiUsage
+        AHJRequirement, AHJSpecificRequirement, AHJStructuralSetbackRequirement, ApiUsage, State, StateSpecificInformation
     )
 from rest_framework.parsers import JSONParser
 from rest_framework import status
@@ -12,13 +12,15 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 from app.serializer import (
     AHJDetailSerializer, AHJRequirementSerializer, AHJElectricalRequirementSerializer, AHJGroundMountRequirementSerializer,
-    AHJSpecificRequirementSerializer, AHJStructuralSetbackRequirementSerializer
+    AHJSpecificRequirementSerializer, AHJStructuralSetbackRequirementSerializer, StateSpecificInformationSerializer
 )
 from app.mixins import ApiTokenValidityCheckMixin
 import logging
 logger = logging.getLogger(__name__)
+
+# ApiTokenValidityCheckMixin,
 @method_decorator(csrf_exempt, name="dispatch")
-class AHJDetailView(ApiTokenValidityCheckMixin, View):
+class AHJDetailView(View):
     def get(self, request, id):
         try:
             ahj = get_object_or_404(AHJ, id=id)
@@ -29,9 +31,17 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 "ahj_specific_requirement":None,
                 "ahj_electrical_requirement":None,
                 "ahj_structural_setback_requirement":None,
-                "ahj_ground_mount_requirement":None
+                "ahj_ground_mount_requirement":None,
+                "state_specific_ic_codes": None
             }
             ahj_requirement = AHJRequirement.objects.filter(ahj_id=id).first()
+            state = State.objects.get(code=ahj.state_code)
+            state_specific_ic_codes = state.specific_information.all()
+
+            if state_specific_ic_codes:
+                state_specific_ic_codes_serializer = StateSpecificInformationSerializer(state_specific_ic_codes, many=True)
+                data["state_specific_ic_codes"] = state_specific_ic_codes_serializer.data
+
             if ahj_requirement:
                 ahj_requirement_serializer = AHJRequirementSerializer(ahj_requirement)
                 data["ahj_requirement"] = ahj_requirement_serializer.data
