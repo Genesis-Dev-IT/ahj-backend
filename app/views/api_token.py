@@ -74,15 +74,9 @@ class APITokenDetailView(View):
         
     def patch(self, request):
         try:
+            # we can only deactivate the token 
             body = JSONParser().parse(request)
             user_id = body.get("user_id")
-            active = body.get("active", None)
-
-            if active is None:
-                return JsonResponse({
-                    "error": "ACTIVE_REQUIRED",
-                    "message": "Active status must be provided."
-                }, status=400)
 
             # fetch user
             user = User.objects.get(id=user_id)
@@ -91,34 +85,37 @@ class APITokenDetailView(View):
                 return JsonResponse({
                     "error": "USER_INACTIVE",
                     "message": "This user account is inactive. Please contact support."
-                }, status=403)
+                }, status=status.HTTP_403_FORBIDDEN)
 
             # fetch token
             token = get_object_or_404(ApiToken, user=user)
-
-            # only update active field
-            token.active = active
+            if token.active == False:
+                return JsonResponse({
+                    "error": None,
+                    "message":"API token is already disabled."
+                }, status=status.HTTP_200_OK)
+            
+            token.active = False
             token.updated_by = user
-            token.updated_at = current_timestamp()
-            token.save(update_fields=["active", "updated_by", "updated_at"])
+            token.save()
 
             return JsonResponse({
                 "error": None,
-                "message": "API token updated successfully."
-            }, status=200)
+                "message": "API token disabled successfully."
+            }, status=status.HTTP_200_OK)
 
         except Http404:
             return JsonResponse({
                 "error": "NOT_FOUND",
                 "message": "API token not found."
-            }, status=404)
+            }, status=status.HTTP_404_NOT_FOUND)
         
         except Exception as e:
             print(e)
             return JsonResponse({
                 "error": "SERVER_ERROR",
                 "message": "Something went wrong while updating the token."
-            }, status=500)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     def delete(self, request):
         try:

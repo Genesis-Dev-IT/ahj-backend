@@ -40,6 +40,11 @@ class UserSerializer(serializers.ModelSerializer):
                 {"email": "Email cannot be updated once set."}
             )
         
+        if self.instance and "is_admin" in data:
+            raise serializers.ValidationError(
+                {"is_admin": "is_admin cannot be updated"}
+            )
+        
         email = data.get("email", self.instance.email if self.instance else None)
         is_admin = data.get("is_admin", self.instance.is_admin if self.instance else False)
 

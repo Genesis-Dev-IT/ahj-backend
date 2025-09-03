@@ -15,6 +15,8 @@ from genesis.utils import current_timestamp
 class UserDetailView(View):
     def post(self, request):
         try:
+            # user can be created by admin only
+
             body = JSONParser().parse(request)
             serializer = UserSerializer(data=body)
             if serializer.is_valid():
@@ -72,6 +74,9 @@ class UserDetailView(View):
         try:
             user = get_object_or_404(User, id=id)
             body = JSONParser().parse(request)
+
+            # check if the actor is admin then we can update is_active as well
+
             with transaction.atomic():
                 serializer = UserSerializer(user, data=body, partial=True)
                 if serializer.is_valid():
@@ -115,6 +120,7 @@ class UserDetailView(View):
     
     def delete(self, request, id):
         try:
+            # user can be deleted by admin only
             user = get_object_or_404(User, id=id)
             user.delete()
             return JsonResponse({
