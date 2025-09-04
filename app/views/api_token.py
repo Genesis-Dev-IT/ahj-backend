@@ -10,14 +10,15 @@ from django.http import Http404
 from genesis.utils import current_timestamp
 from datetime import timedelta
 from django.db import transaction
-
+from app.mixins import LoginAuthTokenVerificationMixin
 @method_decorator(csrf_exempt, name="dispatch")
-class APITokenDetailView(View):
+class APITokenDetailView(LoginAuthTokenVerificationMixin, View):
     def post(self, request):
         try:
+            actor = request.actor
             body = JSONParser().parse(request)
             plan = body.get("plan", None)
-            user_id = body.get("user_id", None) # later get user_id from auth token
+            user_id = actor.id
             if not plan:
                 return JsonResponse({
                     "error": "PLAN_REQUIRED",
@@ -46,8 +47,8 @@ class APITokenDetailView(View):
                     plan=subscription_plan,
                     limit = subscription_plan.limit,
                     expires_at=expires_at,
-                    created_by = user,
-                    updated_by = user
+                    created_by = actor,
+                    updated_by = actor
                 )
 
                 return JsonResponse({

@@ -11,13 +11,19 @@ from django.http import Http404
 from genesis.utils import chain_errors
 from django.db import transaction
 from genesis.supabase_client import get_supabase_client
+from app.mixins import LoginAuthTokenVerificationMixin
 
 import logging
 logger = logging.getLogger(__name__)
 
-
 @method_decorator(csrf_exempt, name="dispatch")
-class UserDetailView(View):
+class UserDetailView(LoginAuthTokenVerificationMixin, View):
+    permissions = {
+        "POST": {"is_admin": True},   # only admins can create users
+        "PATCH": {"is_admin": False}, # any logged-in user can patch their own details
+        "GET":{"is_admin": False},
+        "DELETE":{"is_admin": True}
+    }
     def post(self, request):
         response = None
         try:
@@ -31,6 +37,7 @@ class UserDetailView(View):
                         {
                             "email": body.get("email"),
                             "password": "Password@1",
+                            "email_confirm":True,
                         }
                     )
 

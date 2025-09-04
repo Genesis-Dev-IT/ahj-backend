@@ -3,6 +3,18 @@ from django.utils import timezone
 from django.db.models import Count
 from app.models import ApiToken, ApiUsage
 from genesis.utils import current_timestamp
+from genesis.supabase_client import get_supabase_client
+import jwt
+import os
+from django.shortcuts import get_object_or_404
+from app.models import User
+from django.http import Http404
+from rest_framework import status
+import json
+import logging
+logger = logging.getLogger(__name__)
+
+SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET") 
 
 class ApiTokenValidityCheckMixin:
     """Mixin to enforce API token validation and quota checking."""
@@ -65,3 +77,99 @@ class ApiTokenValidityCheckMixin:
         request.api_token = api_token
 
         return super().dispatch(request, *args, **kwargs)
+    
+
+class LoginAuthTokenVerificationMixin:
+    def dispatch(self, request, *args, **kwargs):
+        auth_header = request.headers.get("Authorization")
+
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return JsonResponse(
+                {"error": "AUTH_ERROR", "message": "Authorization header missing or invalid"},
+                status=401,
+            )
+
+        token = auth_header.split(" ")[1]
+
+        try:
+            # Verify JWT using Supabase JWT secret
+            if not is_token_authenticated(token):
+                return JsonResponse(
+                    {
+                        "error": "INVALID_TOKEN",
+                        "message": "Token not authenticated"
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            supabase_client = get_supabase_client()
+
+            supabase_user_response = supabase_client.auth.get_user(token)
+
+            if not supabase_user_response or not hasattr(supabase_user_response, "user"):
+                return JsonResponse(
+                    {"error": "AUTH_ERROR", "message": "Failed to fetch user from Supabase"},
+                    status=401,
+            )
+
+            supabase_user = json.loads(supabase_user_response.model_dump_json())
+            email = supabase_user.get("user", {}).get("email")
+
+            if not email:
+                return JsonResponse(
+                    {"error": "AUTH_ERROR", "message": "No email found in Supabase user"},
+                    status=401,
+                )
+
+            
+            user = get_object_or_404(User, email=email)
+             # --- permission enforcement ---
+            view = self.__class__
+            method = request.method.upper()
+
+            if hasattr(view, "permissions"):
+                perms = view.permissions.get(method)
+                if perms:
+                    if perms.get("is_admin", False) and not user.is_admin:
+                        return JsonResponse(
+                            {
+                                "error": "FORBIDDEN",
+                                "message": "Admin privileges required for this operation.",
+                            },
+                            status=403,
+                        )
+
+            request.actor=user
+
+        except Http404:
+            return JsonResponse({
+                "error": "NOT_FOUND",
+                "message": f"User with id {id} does not exist."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print("Unexpected error in LoginAuthTokenVerificationMixin:", str(e))
+            return JsonResponse(
+                {"error": "SERVER_ERROR", "message": "Something went wrong during authentication"},
+                status=500,
+            )
+        # Continue to the view
+        return super().dispatch(request, *args, **kwargs)
+    
+
+
+
+def is_token_authenticated(token):
+    if not token:
+        return False
+    decoded_token = jwt.decode(token, options={"verify_signature": False})
+    try:
+        if 'aud' in decoded_token and 'role' in decoded_token:
+            if decoded_token['aud'] != 'authenticated' and "authenticated" not in decoded_token['aud']:
+                return False
+            if decoded_token['role'] != 'authenticated':
+                return False
+            return True
+        return False
+    except Exception as e:
+        logger.warning(f"Error during token authentication check: {e}")
+        return False
