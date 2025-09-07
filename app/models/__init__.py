@@ -6,7 +6,7 @@ from .ahj import (
     )
 
 from .utility import(
-    Utility, UtilityRequirement, UtilityICApplicationRequirement, UtilityData, UtilityProductionMeterRequirement, ZipcodeUtilityMapping
+    Utility, ProjectLevel, SolarUtility, SolarUtilityPart1Requirement, SolarUtilityPart2Requirement, ZipcodeUtilityMapping
 )
 
 from .subscription import(

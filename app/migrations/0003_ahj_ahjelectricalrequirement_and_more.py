@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=255)),
                 ('type', models.CharField(db_index=True, max_length=50)),
-                ('state_code', models.CharField(db_index=True, max_length=10, null=True)),
+                ('state_code', models.CharField(max_length=10, null=True)),
                 ('country', models.CharField(default='USA', max_length=100)),
                 ('building_code', models.CharField(blank=True, max_length=100, null=True)),
                 ('nec_code', models.CharField(blank=True, max_length=100, null=True)),

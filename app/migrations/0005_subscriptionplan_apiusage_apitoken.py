@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app', '0004_utility_utilitydata_utilityicapplicationrequirement_and_more'),
+        ('app', '0003_ahj_ahjelectricalrequirement_and_more'),
     ]
 
     operations = [
