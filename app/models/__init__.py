@@ -10,7 +10,7 @@ from .utility import(
 )
 
 from .subscription import(
-    SubscriptionPlan, ApiToken, ApiUsage
+    SubscriptionPlan, ApiToken, UserSubscription, ApiUsage
 )
 
 from .state import(

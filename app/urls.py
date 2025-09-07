@@ -5,7 +5,7 @@ from app.views.ahj import AHJDetailView
 from app.views.utility import UtilityDetailView
 from app.views.zipcode import ZipCodeAHJUtilityMappingDetailView
 from app.views.api_token import APITokenDetailView
-
+from app.views.user_subscription import UserSuscriptionDetailView
 urlpatterns = [
     path('health', HealthCheck.as_view(), name='health-check'),
     path('v1/user', UserDetailView.as_view(), name='create-user'),
@@ -14,4 +14,5 @@ urlpatterns = [
     path('v1/utility/<int:id>', UtilityDetailView.as_view(), name='utility-detail'),
     path('v1/zipcode/<str:id>', ZipCodeAHJUtilityMappingDetailView.as_view(), name='ahj-utility-for-a-zipcode'),
     path('v1/token', APITokenDetailView.as_view(), name='api-token-detail-view'),
+    path('v1/subscription', UserSuscriptionDetailView.as_view(), name='user-subscription-detail-view'),
 ]

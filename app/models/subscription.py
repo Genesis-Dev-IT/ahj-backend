@@ -21,12 +21,33 @@ class SubscriptionPlan(models.Model):
     def __str__(self):
         return f"{self.type.capitalize()} (Limit: {self.limit}, Validity: {self.validity_days} days)"
     
+class UserSubscription(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="subscriptions")
+    plan = models.ForeignKey(SubscriptionPlan, on_delete=models.SET_NULL, null=True, related_name="subscriptions")
+    active = models.BooleanField(default=True)
+    expires_at = models.BigIntegerField(default=current_timestamp)
+    created_at = models.BigIntegerField(default=current_timestamp)
+    updated_at = models.BigIntegerField(default=current_timestamp)
+
+    class Meta:
+        db_table = "user_subscription"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user"],
+                condition=Q(active=True),
+                name="one_active_subscription_per_user"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.user} - {self.plan.type} ({'active' if self.active else 'inactive'})"
 
 
 class ApiToken(models.Model):
     id = models.BigAutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="api_token")
-    plan = models.ForeignKey(SubscriptionPlan, on_delete=models.SET_NULL, null=True, related_name="api_token")
+    # plan = models.ForeignKey(SubscriptionPlan, on_delete=models.SET_NULL, null=True, related_name="api_token")
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     limit = models.PositiveIntegerField(default=0)
     expires_at = models.BigIntegerField()

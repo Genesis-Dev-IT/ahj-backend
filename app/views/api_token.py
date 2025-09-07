@@ -2,7 +2,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views import View
 from django.http import JsonResponse
-from app.models import SubscriptionPlan, ApiToken, User
+from app.models import SubscriptionPlan, ApiToken, User, UserSubscription
 from rest_framework.parsers import JSONParser
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -11,20 +11,13 @@ from genesis.utils import current_timestamp
 from datetime import timedelta
 from django.db import transaction
 from app.mixins import LoginAuthTokenVerificationMixin
+
 @method_decorator(csrf_exempt, name="dispatch")
 class APITokenDetailView(LoginAuthTokenVerificationMixin, View):
     def post(self, request):
         try:
             actor = request.actor
-            body = JSONParser().parse(request)
-            plan = body.get("plan", None)
             user_id = actor.id
-            if not plan:
-                return JsonResponse({
-                    "error": "PLAN_REQUIRED",
-                    "message": "Subscription plan must be provided to generate a token."
-                }, status=400)
-
             user = User.objects.get(id=user_id)
             if not user.is_active:
                 return JsonResponse({
@@ -35,16 +28,15 @@ class APITokenDetailView(LoginAuthTokenVerificationMixin, View):
             with transaction.atomic():
                 # Delete any existing token for this user
                 ApiToken.objects.filter(user=user).delete()
-
-                subscription_plan = get_object_or_404(SubscriptionPlan, type=plan)
-
+                user_subscription = UserSubscription.objects.get(user=user, active=True)
+                subscription_plan = SubscriptionPlan.objects.get(id = user_subscription.plan.id)
+                
                 # set expires_at using validity_days of subscription plan
                 additional_days = int(timedelta(days=subscription_plan.validity_days).total_seconds() * 1000)  #millisecond
                 expires_at = current_timestamp() + additional_days
 
                 token_obj = ApiToken.objects.create(
                     user=user,
-                    plan=subscription_plan,
                     limit = subscription_plan.limit,
                     expires_at=expires_at,
                     created_by = actor,
@@ -60,12 +52,19 @@ class APITokenDetailView(LoginAuthTokenVerificationMixin, View):
                         "token": token_obj.token
                     }
                 }, status=200)
-
-        except Http404:
+            
+        except UserSubscription.DoesNotExist:
             return JsonResponse({
-                "error": "NOT_FOUND",
-                "message": "Provided subscription plan does not exist"
-            }, status=400)
+                    "error": "NOT_FOUND",
+                    "message": "You must have an active subscription to generate a token."
+                }, status=status.HTTP_404_NOT_FOUND)
+        
+        except SubscriptionPlan.DoesNotExist:
+            return JsonResponse({
+                    "error": "NOT_FOUND",
+                    "message": "Plan attached to subscription does not exists."
+                }, status=status.HTTP_404_NOT_FOUND)
+        
         except Exception as e:
             print(e)
             return JsonResponse({
