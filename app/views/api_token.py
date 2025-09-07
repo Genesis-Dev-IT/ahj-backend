@@ -23,17 +23,14 @@ class APITokenDetailView(LoginAuthTokenVerificationMixin, View):
             with transaction.atomic():
                 # Delete any existing token for this user
                 ApiToken.objects.filter(user=user).delete()
+                
                 user_subscription = UserSubscription.objects.get(user=user, active=True)
                 subscription_plan = SubscriptionPlan.objects.get(id = user_subscription.plan.id)
                 
-                # set expires_at using validity_days of subscription plan
-                additional_days = int(timedelta(days=subscription_plan.validity_days).total_seconds() * 1000)  #millisecond
-                expires_at = current_timestamp() + additional_days
-
                 token_obj = ApiToken.objects.create(
                     user=user,
                     limit = subscription_plan.limit,
-                    expires_at=expires_at,
+                    expires_at=user_subscription.expires_at,
                     created_by = actor,
                     updated_by = actor
                 )
