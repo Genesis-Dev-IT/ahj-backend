@@ -132,6 +132,13 @@ class LoginAuthTokenVerificationMixin:
 
             
             user = get_object_or_404(User, email=email)
+
+            if not user.is_active:
+                return JsonResponse({
+                    "error":"USER_INACTIVE",
+                    "message":"This user account is inactive. Please contact support."
+                }, status = status.HTTP_403_FORBIDDEN)
+            
              # --- permission enforcement ---
             view = self.__class__
             method = request.method.upper()

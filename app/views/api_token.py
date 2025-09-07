@@ -19,11 +19,6 @@ class APITokenDetailView(LoginAuthTokenVerificationMixin, View):
             actor = request.actor
             user_id = actor.id
             user = User.objects.get(id=user_id)
-            if not user.is_active:
-                return JsonResponse({
-                    "error":"USER_INACTIVE",
-                    "message":"This user account is inactive. Please contact support."
-                }, status = status.HTTP_403_FORBIDDEN)
             
             with transaction.atomic():
                 # Delete any existing token for this user
