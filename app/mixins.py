@@ -12,6 +12,8 @@ from django.http import Http404
 from rest_framework import status
 import json
 import logging
+from supabase import AuthApiError
+
 logger = logging.getLogger(__name__)
 
 SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET") 
@@ -103,8 +105,15 @@ class LoginAuthTokenVerificationMixin:
                 )
 
             supabase_client = get_supabase_client()
+            supabase_user_response = None
 
-            supabase_user_response = supabase_client.auth.get_user(token)
+            try:
+                supabase_user_response = supabase_client.auth.get_user(token)
+            except AuthApiError as e:  # Handles expired/invalid token
+                return JsonResponse(
+                    {"error": "TOKEN_EXPIRED", "message": str(e)},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
 
             if not supabase_user_response or not hasattr(supabase_user_response, "user"):
                 return JsonResponse(
@@ -123,6 +132,13 @@ class LoginAuthTokenVerificationMixin:
 
             
             user = get_object_or_404(User, email=email)
+
+            if not user.is_active:
+                return JsonResponse({
+                    "error":"USER_INACTIVE",
+                    "message":"This user account is inactive. Please contact support."
+                }, status = status.HTTP_403_FORBIDDEN)
+            
              # --- permission enforcement ---
             view = self.__class__
             method = request.method.upper()
@@ -140,7 +156,7 @@ class LoginAuthTokenVerificationMixin:
                         )
 
             request.actor=user
-
+        
         except Http404:
             return JsonResponse({
                 "error": "NOT_FOUND",
