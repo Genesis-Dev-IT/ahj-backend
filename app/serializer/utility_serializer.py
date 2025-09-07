@@ -1,35 +1,29 @@
 from rest_framework import serializers
 from app.models import (
-    Utility, UtilityRequirement, UtilityICApplicationRequirement,
-    UtilityData, UtilityProductionMeterRequirement
+    Utility, ProjectLevel, SolarUtility, SolarUtilityPart1Requirement, SolarUtilityPart2Requirement,
 )
 
-
-class UtilityRequirementSerializer(serializers.ModelSerializer):
+class ProjectLevelSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UtilityRequirement
+        model = ProjectLevel
+        exclude = ('id',)
+
+class SolarUtilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SolarUtility
         exclude = ("id", "utility", "created_at", "updated_at")
 
-
-class UtilityICApplicationRequirementSerializer(serializers.ModelSerializer):
+class SolarUtilityPart1RequirementSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UtilityICApplicationRequirement
-        exclude = ("id", "utility", "created_at", "updated_at")
+        model = SolarUtilityPart1Requirement
+        exclude = ("id", "solar_utility", "created_at", "updated_at",)
 
-
-class UtilityDataSerializer(serializers.ModelSerializer):
+class SolarUtilityPart2RequirementSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UtilityData
-        exclude = ("id", "utility", "created_at", "updated_at")
+        model = SolarUtilityPart2Requirement
+        exclude = ("id", "solar_utility","created_at", "updated_at",)
 
-
-class UtilityProductionMeterRequirementSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UtilityProductionMeterRequirement
-        exclude = ("id", "utility", "created_at", "updated_at")
-
-
-class UtilityDetailSerializer(serializers.ModelSerializer):
+class UtilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Utility
         exclude = ("id", "created_at", "updated_at", "created_by", "updated_by")

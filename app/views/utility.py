@@ -3,16 +3,16 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views import View
 from django.http import JsonResponse
 from app.models import (
-        Utility, UtilityData, UtilityICApplicationRequirement, UtilityProductionMeterRequirement, UtilityRequirement,
-        ApiUsage
-    )
+    Utility, ProjectLevel, SolarUtility, SolarUtilityPart1Requirement, 
+    SolarUtilityPart2Requirement, ApiUsage
+)
 from rest_framework.parsers import JSONParser
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from app.serializer import (
-    UtilityDataSerializer, UtilityDetailSerializer, UtilityICApplicationRequirementSerializer, UtilityProductionMeterRequirementSerializer,
-    UtilityRequirementSerializer
+    ProjectLevelSerializer, SolarUtilitySerializer, SolarUtilityPart1RequirementSerializer,
+    SolarUtilityPart2RequirementSerializer, UtilitySerializer
 )
 from app.mixins import ApiTokenValidityCheckMixin
 import logging
@@ -23,35 +23,33 @@ class UtilityDetailView(ApiTokenValidityCheckMixin, View):
     def get(self, request, id):
         try:
             utility = get_object_or_404(Utility, id=id)
-            utility_serializer = UtilityDetailSerializer(utility)
+            utility_serializer = UtilitySerializer(utility)
             data={
-                "utility":utility_serializer.data,
-                "utility_requirement":None,
-                "utility_ic_application_requirement":None,
-                "utility_data":None,
-                "utility_production_meter_requirement":None,
+                "baisc_info":utility_serializer.data,
+                "solar_info":None,
+                "requirements":{}
             }
 
-            utility_requirement = UtilityRequirement.objects.filter(utility_id=id).first()
-            if utility_requirement:
-                utility_requirement_serializer = UtilityRequirementSerializer(utility_requirement)
-                data["utility_requirement"] = utility_requirement_serializer.data
+            solar_utility = SolarUtility.objects.filter(utility_id=id).first()
+            if solar_utility:
+                solar_utility_serializer = SolarUtilitySerializer(solar_utility)
+                data["solar_info"] = solar_utility_serializer.data
 
-            utility_ic_application_requirement = UtilityICApplicationRequirement.objects.filter(utility_id=id).first()
-            if utility_ic_application_requirement:
-                utility_ic_application_requirement_serializer = UtilityICApplicationRequirementSerializer(utility_ic_application_requirement)
-                data["utility_ic_application_requirement"]=utility_ic_application_requirement_serializer.data
+            solar_utility_part1_requirement = SolarUtilityPart1Requirement.objects.filter(solar_utility=solar_utility.id).first()
+            if solar_utility_part1_requirement:
+                solar_utility_part1_requirement_serializer = SolarUtilityPart1RequirementSerializer(solar_utility_part1_requirement)
+                data["requirements"]["part1"]=solar_utility_part1_requirement_serializer.data
             
-            utility_data = UtilityData.objects.filter(utility_id=id).first()
-            if utility_data:
-                utility_data_serializer = UtilityDataSerializer(utility_data)
-                data["utility_data"] = utility_data_serializer.data
+            solar_utility_part2_requirement = SolarUtilityPart2Requirement.objects.filter(solar_utility=solar_utility.id).first()
+            if solar_utility_part2_requirement:
+                solar_utility_part2_requirement_serializer = SolarUtilityPart2RequirementSerializer(solar_utility_part2_requirement)
+                data["requirements"]["part2"] = solar_utility_part2_requirement_serializer.data
             
-            utility_production_meter_requirement = UtilityProductionMeterRequirement.objects.filter(utility_id=id).first()
-            if utility_production_meter_requirement:
-                utility_production_meter_requirement_serialzer = UtilityProductionMeterRequirementSerializer(utility_production_meter_requirement)
-                data["utility_production_meter_requirement"] = utility_production_meter_requirement_serialzer.data 
-            
+            project_level = ProjectLevel.objects.get(id = solar_utility.project_level_id)
+            project_level_serializer = ProjectLevelSerializer(project_level)
+            data["solar_info"]["project_level"] = project_level_serializer.data
+
+
             # create entry in api_usage after successfull api hit
             try:
                 ApiUsage.objects.create(

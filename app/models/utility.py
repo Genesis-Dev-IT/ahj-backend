@@ -1,15 +1,31 @@
 from django.db import models
 from genesis.utils import current_timestamp
 from app.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Utility(models.Model):
+    LEVEL_CHOICES = [
+        ('city', 'City'),
+        ('township', 'Township'),
+        ('state', 'State'),
+        ('country', 'Country'),
+    ]
+
+    TYPE_CHOICES = [
+        ('gas', 'Gas'),
+        ('solar', 'Solar'),
+        ('sewer', 'Sewer'),
+        ('electric', 'Electric'),
+        ('water', 'Water'),
+    ]
+
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    email = models.EmailField(null=True, blank=True)
-    state_code = models.CharField(max_length=10, db_index=True)
-    # state = models.CharField(max_length=100)
-    production_meter = models.BooleanField(null=True, blank=True)
-    disconnect = models.BooleanField(null=True, blank=True)
+    state_code = models.CharField(max_length=10, blank=True, null=True)
+    level = models.CharField(max_length=20, choices=LEVEL_CHOICES)
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    website_link = models.TextField(blank=True, null=True)
+    email = models.EmailField(max_length=255, unique=True, blank=True, null=True)
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="utility_created")
@@ -17,7 +33,17 @@ class Utility(models.Model):
 
     class Meta:
         db_table = "utility"
-
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(level__in=['city', 'township', 'state', 'country']),
+                name="utility_level_valid"
+            ),
+            models.CheckConstraint(
+                check=models.Q(type__in=['gas', 'solar', 'sewer', 'electric', 'water']),
+                name="utility_type_valid"
+            ),
+        ]
+    
     def save(self, *args, **kwargs):
         """Update 'updated_at' every time the object is saved."""
         self.updated_at = current_timestamp()  # Update timestamp on every save
@@ -26,122 +52,120 @@ class Utility(models.Model):
     def __str__(self):
         return self.name
 
+class ProjectLevel(models.Model):
+    code = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=50)
+    description = models.TextField()
 
-class UtilityRequirement(models.Model):
+    class Meta:
+        db_table = "project_level"
+
+    def __str__(self):
+        return f"{self.name} ({self.code})"
+
+
+class SolarUtility(models.Model):
+    SUBMISSION_CHOICES = [
+        ('online', 'Online'),
+        ('offline', 'Offline'),
+    ]
+
     id = models.BigAutoField(primary_key=True)
-    utility = models.ForeignKey(Utility, on_delete=models.CASCADE)
-
-    system_size = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    farm_system_size = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    minimum_system_size = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-
-    net_metering_required = models.BooleanField(default=False)
-    bidirectional_meter_required = models.BooleanField(default=False)
-    production_meter_required = models.BooleanField(default=False)
-    production_meter_threshold = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-
-    disconnect_placement = models.CharField(   #exterior_wall, interior_panel_room, meter_location, service_entrance, visible_from_street, other   
-        max_length=255,     
-        null=True,
-        blank=True,
-        help_text="Comma-separated values (e.g. 'exterior_wall, meter_location')"
+    utility = models.ForeignKey(
+        Utility, on_delete=models.CASCADE, related_name="solar_utilities"
     )
-    created_at = models.BigIntegerField(default=current_timestamp)
-    updated_at = models.BigIntegerField(default=current_timestamp)
-
-    class Meta:
-        db_table = "utility_requirement"
-
-    def save(self, *args, **kwargs):
-        """Update 'updated_at' every time the object is saved."""
-        self.updated_at = current_timestamp()
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"Utility Requirement for {self.utility.name} (ID: {self.id})"
-    
-
-class UtilityICApplicationRequirement(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    utility = models.ForeignKey(Utility, on_delete=models.CASCADE)
-    application_type = models.CharField(  # Type A, Type B, Type C
-        max_length=50,
-        null=True,
+    website_link = models.TextField(blank=True, null=True)
+    email = models.EmailField(max_length=255, unique=True, blank=True, null=True)
+    submission_process = models.CharField(max_length=10, choices=SUBMISSION_CHOICES)
+    offset = models.DecimalField(
+        max_digits=5,      # allows up to 100.00
+        decimal_places=2,  # supports decimals like 99.99
         blank=True,
-        help_text="Utility-defined application type (e.g., Type A, Type B, Type C)"
+        null=True,
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(100),
+        ],
+        help_text="Offset percentage (0-100, decimals allowed)."
     )
+    review_days_part1 = models.IntegerField(blank=True, null=True)
+    review_days_part2 = models.IntegerField(blank=True, null=True)
+    application_submission_link_part1 = models.TextField(blank=True, null=True)
+    application_submission_link_part2 = models.TextField(blank=True, null=True)
+    requires_combined_pdf = models.BooleanField(default=False)
+    project_level = models.ForeignKey(ProjectLevel, on_delete=models.CASCADE)
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)
 
     class Meta:
-        db_table = "utility_ic_application_requirement"
-
+        db_table = "solar_utility"
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(submission_process__in=['online', 'offline']),
+                name="solar_submission_valid"
+            ),
+        ]
     def save(self, *args, **kwargs):
         """Update 'updated_at' every time the object is saved."""
-        self.updated_at = current_timestamp()
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"Utility IC Application Requirement for {self.utility.name} (ID: {self.id})"
+        self.updated_at = current_timestamp()  # Update timestamp on every save
+        super().save(*args, **kwargs)  # Call the default save method
     
+    def __str__(self):
+        return f"Solar Utility ({self.utility.name})"
 
-class UtilityData(models.Model):
+
+class SolarUtilityPart1Requirement(models.Model):
     id = models.BigAutoField(primary_key=True)
-    utility = models.ForeignKey(Utility, on_delete=models.CASCADE)
-    lc_required = models.BooleanField(default=False)
-    hoi_required = models.BooleanField(default=False)
-    online_submission = models.BooleanField(default=False)
+    solar_utility = models.OneToOneField(
+        SolarUtility, on_delete=models.CASCADE, related_name="part1_requirement"
+    )
+
+    part1_application_form = models.BooleanField(default=False)
+    engineering_drawing = models.BooleanField(default=False)
+    inverter_datasheet = models.BooleanField(default=False)
+    pv_watts = models.BooleanField(default=False)
+    change_of_contract_letter = models.BooleanField(default=True)  # always mandatory
+    docusign_certificate = models.BooleanField(default=True)       # always mandatory
+    load_calculation_direct = models.BooleanField(default=False)
+    load_calculation_pe_stamped = models.BooleanField(default=False)
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)
 
     class Meta:
-        db_table = "utility_data"
-
-    def save(self, *args, **kwargs):
-        """Update 'updated_at' every time the object is saved."""
-        self.updated_at = current_timestamp()
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"Utility Data for {self.utility.name} (ID: {self.id})"
-
-
-
-class UtilityProductionMeterRequirement(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    utility = models.ForeignKey(Utility, on_delete=models.CASCADE)
-    system_size_kw = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="System size in kW")
-    location_notes = models.TextField(null=True, blank=True, help_text="Notes about placement/location of meter")
-    distance_from_service_ft = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="Distance from main service meter")
-    prohibited_locations = models.TextField(null=True, blank=True, help_text="Any prohibited locations (e.g., patio/carport)")
-    wiring_orientation = models.CharField(max_length=100, null=True, blank=True, help_text="Line/top = inverter, Load/bottom = utility")
-    sequence_notes = models.TextField(null=True, blank=True, help_text="Sequence of devices (Inverter > AC Disconnect > PV Meter > Interconnection)")
-    meter_model = models.CharField(max_length=50, null=True, blank=True, help_text="Model of PV meter (e.g., Milbank U4518-XL-W)")
-    meter_amp_rating = models.PositiveIntegerField(null=True, blank=True, help_text="Amp rating (e.g., 200)")
-    meter_size = models.CharField(max_length=50, null=True, blank=True, help_text='Physical size (e.g., 15.5"x11"x4.375")')
-    meter_features = models.TextField(null=True, blank=True, help_text="Ringless, bypass lever, 5th jaw, SMART etc.")
-    wire_size = models.CharField(max_length=50, null=True, blank=True, help_text="Wire sizes (#8 for 100A, #6 for 200A)")
-    is_meter_optional = models.BooleanField(default=False, help_text="Is meter optional?")
-    exempt_under_kw = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="Exemption threshold in kW")
-    smart_meter_required = models.BooleanField(default=False, help_text="Whether SMART meter labeling is required")
-    access_requirements = models.TextField(null=True, blank=True, help_text="Accessibility requirements (keyless, 24/7, etc.)")
-    notes = models.TextField(null=True, blank=True, help_text="Any additional utility notes")
-
-    created_at = models.BigIntegerField(default=current_timestamp)
-    updated_at = models.BigIntegerField(default=current_timestamp)
-
-    class Meta:
-        db_table = "utility_production_meter_requirement"
-
-    def save(self, *args, **kwargs):
-        """Update 'updated_at' every time the object is saved."""
-        self.updated_at = current_timestamp()
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"Utility Production Meter Requirement for {self.utility.name} (ID: {self.id})"
+        db_table = "solar_utility_part1_requirement"
     
+    def save(self, *args, **kwargs):
+        """Update 'updated_at' every time the object is saved."""
+        self.updated_at = current_timestamp()  # Update timestamp on every save
+        super().save(*args, **kwargs)  # Call the default save method
 
+    def __str__(self):
+        return f"Part1 Requirements ({self.utility.name})"
+
+
+class SolarUtilityPart2Requirement(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    solar_utility = models.OneToOneField(
+        SolarUtility, on_delete=models.CASCADE, related_name="part2_requirement"
+    )
+
+    certificate_of_approval = models.BooleanField(default=False)
+    part2_application_form = models.BooleanField(default=False)
+    as_built = models.BooleanField(default=False)
+    created_at = models.BigIntegerField(default=current_timestamp)
+    updated_at = models.BigIntegerField(default=current_timestamp)
+
+    class Meta:
+        db_table = "solar_utility_part2_requirement"
+
+    def save(self, *args, **kwargs):
+        """Update 'updated_at' every time the object is saved."""
+        self.updated_at = current_timestamp()  # Update timestamp on every save
+        super().save(*args, **kwargs)  # Call the default save method
+
+    def __str__(self):
+        return f"Part2 Requirements ({self.utility.name})"
+    
 class ZipcodeUtilityMapping(models.Model):
     utility = models.ForeignKey(Utility, on_delete=models.CASCADE)
     zipcode = models.CharField(max_length=20, db_index=True)

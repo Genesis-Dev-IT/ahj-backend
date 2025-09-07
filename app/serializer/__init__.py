@@ -5,8 +5,8 @@ from .ahj_serializer import (
 )
 
 from .utility_serializer import (
-    UtilityRequirementSerializer, UtilityICApplicationRequirementSerializer, UtilityDataSerializer, 
-    UtilityProductionMeterRequirementSerializer, UtilityDetailSerializer
+    ProjectLevelSerializer, SolarUtilitySerializer, SolarUtilityPart1RequirementSerializer,
+    SolarUtilityPart2RequirementSerializer, UtilitySerializer
 )
 
 from .state_serializer import (
