@@ -20,7 +20,27 @@ logger = logging.getLogger(__name__)
 
 @method_decorator(csrf_exempt, name="dispatch")
 class UtilityDetailView(ApiTokenValidityCheckMixin, View):
-    def get(self, request, id):
+    def get(self, request, id=None):
+        try:
+            if not id:
+                name_filter = request.GET.get('name', '')
+                utilties = Utility.objects.filter(name__icontains=name_filter).values('id', 'name')
+
+                return JsonResponse(
+                    {
+                        "error":None,
+                        "message":"Utilities fetched successfully!",
+                        "data": list(utilties)
+                    }
+                    ,status=status.HTTP_200_OK
+                )
+        except Exception as e:
+            logger.error(f"Failed to get Utility info: {e}", exc_info=True)
+            return JsonResponse({
+                "error": "SERVER_ERROR",
+                "message": "Something went wrong while fetching utilities. Please try again later."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
         try:
             utility = get_object_or_404(Utility, id=id)
             utility_serializer = UtilitySerializer(utility)
@@ -30,24 +50,34 @@ class UtilityDetailView(ApiTokenValidityCheckMixin, View):
                 "requirements":{}
             }
 
+            def convert_to_document_list(data_dict):
+                return [
+                    {"document_name": key, "required": value}
+                    for key, value in data_dict.items()
+                ]
+
             solar_utility = SolarUtility.objects.filter(utility_id=id).first()
             if solar_utility:
                 solar_utility_serializer = SolarUtilitySerializer(solar_utility)
                 data["solar_info"] = solar_utility_serializer.data
 
-            solar_utility_part1_requirement = SolarUtilityPart1Requirement.objects.filter(solar_utility=solar_utility.id).first()
-            if solar_utility_part1_requirement:
-                solar_utility_part1_requirement_serializer = SolarUtilityPart1RequirementSerializer(solar_utility_part1_requirement)
-                data["requirements"]["part1"]=solar_utility_part1_requirement_serializer.data
-            
-            solar_utility_part2_requirement = SolarUtilityPart2Requirement.objects.filter(solar_utility=solar_utility.id).first()
-            if solar_utility_part2_requirement:
-                solar_utility_part2_requirement_serializer = SolarUtilityPart2RequirementSerializer(solar_utility_part2_requirement)
-                data["requirements"]["part2"] = solar_utility_part2_requirement_serializer.data
-            
-            project_level = ProjectLevel.objects.get(id = solar_utility.project_level_id)
-            project_level_serializer = ProjectLevelSerializer(project_level)
-            data["solar_info"]["project_level"] = project_level_serializer.data
+                solar_utility_part1_requirement = SolarUtilityPart1Requirement.objects.filter(solar_utility=solar_utility.id).first()
+                if solar_utility_part1_requirement:
+                    solar_utility_part1_requirement_serializer = SolarUtilityPart1RequirementSerializer(solar_utility_part1_requirement)
+                    data["requirements"]["pre_approval"] = convert_to_document_list(solar_utility_part1_requirement_serializer.data)
+                
+                solar_utility_part2_requirement = SolarUtilityPart2Requirement.objects.filter(solar_utility=solar_utility.id).first()
+                if solar_utility_part2_requirement:
+                    solar_utility_part2_requirement_serializer = SolarUtilityPart2RequirementSerializer(solar_utility_part2_requirement)
+                    data["requirements"]["post_approval"] = convert_to_document_list(solar_utility_part2_requirement_serializer.data)
+                
+                project_level = ProjectLevel.objects.get(id = solar_utility.project_level_id)
+                project_level_serializer = ProjectLevelSerializer(project_level)
+                data["solar_info"]["project_level"] = project_level_serializer.data
+            else:
+                # No solar utility found - keep solar_info None and empty requirements
+                data["solar_info"] = None
+                data["requirements"] = {}
 
 
             # create entry in api_usage after successfull api hit
@@ -78,6 +108,5 @@ class UtilityDetailView(ApiTokenValidityCheckMixin, View):
             logger.error(f"Failed to get Utility info: {e}", exc_info=True)
             return JsonResponse({
                 "error": "SERVER_ERROR",
-                "message": "Something went wrong while fetching user. Please try again later."
+                "message": "Something went wrong while fetching utility. Please try again later."
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
