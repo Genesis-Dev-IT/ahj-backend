@@ -4,7 +4,7 @@ from django.views import View
 from django.http import JsonResponse
 from app.models import (
     Utility, ProjectLevel, SolarUtility, SolarUtilityPart1Requirement, 
-    SolarUtilityPart2Requirement, ApiUsage
+    SolarUtilityPart2Requirement, ApiUsage, UtilityRequirementRemark
 )
 from rest_framework.parsers import JSONParser
 from rest_framework import status
@@ -12,7 +12,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 from app.serializer import (
     ProjectLevelSerializer, SolarUtilitySerializer, SolarUtilityPart1RequirementSerializer,
-    SolarUtilityPart2RequirementSerializer, UtilitySerializer
+    SolarUtilityPart2RequirementSerializer, UtilitySerializer, UtilityRequirementRemarkSerializer
 )
 from app.mixins import ApiTokenValidityCheckMixin
 import logging
@@ -79,6 +79,9 @@ class UtilityDetailView(ApiTokenValidityCheckMixin, View):
                 data["solar_info"] = None
                 data["requirements"] = {}
 
+            utility_requirement_remarks = UtilityRequirementRemark.objects.filter(utility_id=utility.id).all()
+            utility_requirement_remarks_serializer = UtilityRequirementRemarkSerializer(utility_requirement_remarks, many=True)
+            data["requirements"]["remarks"] = utility_requirement_remarks_serializer.data
 
             # create entry in api_usage after successfull api hit
             try:

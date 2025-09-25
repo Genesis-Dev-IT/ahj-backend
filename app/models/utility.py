@@ -52,6 +52,26 @@ class Utility(models.Model):
     def __str__(self):
         return self.name
 
+class UtilityRequirementRemark(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    remark = models.TextField(null=True, blank=True)
+    created_at = models.BigIntegerField(default=current_timestamp)
+    updated_at = models.BigIntegerField(default=current_timestamp)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="utility_remark_created")
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="utility_remark_updated")
+    utility = models.ForeignKey(Utility, on_delete=models.CASCADE, null=False)
+
+    class Meta:
+        db_table = "utility_requirement_remarks"
+
+    def save(self, *args, **kwargs):
+        """Update 'updated_at' every time the object is saved."""
+        self.updated_at = current_timestamp()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Remark for utility (ID: {self.utility.id}): {self.remark}"
+
 class ProjectLevel(models.Model):
     code = models.CharField(max_length=20, unique=True)
     name = models.CharField(max_length=50)
@@ -112,7 +132,6 @@ class SolarUtility(models.Model):
     
     def __str__(self):
         return f"Solar Utility ({self.utility.name})"
-
 
 class SolarUtilityPart1Requirement(models.Model):
     id = models.BigAutoField(primary_key=True)

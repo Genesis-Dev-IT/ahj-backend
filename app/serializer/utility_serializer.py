@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from app.models import (
-    Utility, ProjectLevel, SolarUtility, SolarUtilityPart1Requirement, SolarUtilityPart2Requirement,
+    Utility, ProjectLevel, SolarUtility, SolarUtilityPart1Requirement, SolarUtilityPart2Requirement, UtilityRequirementRemark
 )
 
 class ProjectLevelSerializer(serializers.ModelSerializer):
@@ -27,3 +27,9 @@ class UtilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Utility
         exclude = ("id", "created_at", "updated_at", "created_by", "updated_by")
+
+class UtilityRequirementRemarkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UtilityRequirementRemark
+        exclude = ('utility', 'created_at', 'updated_at', 'created_by', 'updated_by')
+
