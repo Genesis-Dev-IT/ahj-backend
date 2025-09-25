@@ -41,7 +41,7 @@ class AHJ(models.Model):
 
 class AHJRequirement(models.Model):
     id = models.BigAutoField(primary_key=True)
-    ahj = models.ForeignKey( AHJ, on_delete=models.CASCADE)
+    ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE)
     pv_meter_required = models.BooleanField(default=False)
     ac_disconnect_required = models.BooleanField(default=False)
     created_at = models.BigIntegerField(default=current_timestamp)
@@ -58,6 +58,25 @@ class AHJRequirement(models.Model):
     def __str__(self):
         return f"Requirement for {self.ahj.name} (ID: {self.id})"
     
+class AHJRequirementRemark(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    remark = models.TextField(null=True, blank=True)
+    created_at = models.BigIntegerField(default=current_timestamp)
+    updated_at = models.BigIntegerField(default=current_timestamp)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="ahj_req_remark_created")
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="ahj_req_remark_updated")
+    ahj_requirement = models.ForeignKey(AHJRequirement, on_delete=models.CASCADE, null=False)
+
+    class Meta:
+        db_table = "ahj_requirement_remarks"
+
+    def save(self, *args, **kwargs):
+        """Update 'updated_at' every time the object is saved."""
+        self.updated_at = current_timestamp()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Remark for requirement (ID: {self.id}): {self.remark}"
 
 
 class AHJSpecificRequirement(models.Model):

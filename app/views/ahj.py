@@ -4,14 +4,14 @@ from django.views import View
 from django.http import JsonResponse
 from app.models import (
         AHJ, AHJElectricalRequirement, AHJGroundMountRequirement, 
-        AHJRequirement, AHJSpecificRequirement, AHJStructuralSetbackRequirement, ApiUsage, State, StateSpecificInformation
+        AHJRequirement, AHJRequirementRemark, AHJSpecificRequirement, AHJStructuralSetbackRequirement, ApiUsage, State, StateSpecificInformation
     )
 from rest_framework.parsers import JSONParser
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from app.serializer import (
-    AHJDetailSerializer, AHJRequirementSerializer, AHJElectricalRequirementSerializer, AHJGroundMountRequirementSerializer,
+    AHJDetailSerializer, AHJRequirementSerializer, AHJRequirementRemarkSerializer, AHJElectricalRequirementSerializer, AHJGroundMountRequirementSerializer,
     AHJSpecificRequirementSerializer, AHJStructuralSetbackRequirementSerializer, StateSpecificInformationSerializer
 )
 from app.mixins import ApiTokenValidityCheckMixin
@@ -21,7 +21,27 @@ logger = logging.getLogger(__name__)
 
 @method_decorator(csrf_exempt, name="dispatch")
 class AHJDetailView(ApiTokenValidityCheckMixin, View):
-    def get(self, request, id):
+    def get(self, request, id=None):
+        try:
+            if not id:
+                name_filter = request.GET.get('name', '')
+                ahjs = AHJ.objects.filter(name__icontains=name_filter).values('id', 'name')
+
+                return JsonResponse(
+                    {
+                        "error":None,
+                        "message":"AHJs fetched successfully!",
+                        "data": list(ahjs)
+                    }
+                    ,status=status.HTTP_200_OK
+                )
+        except Exception as e:
+            logger.error(f"Failed to get AHJ info: {e}", exc_info=True)
+            return JsonResponse({
+                "error": "SERVER_ERROR",
+                "message": "Something went wrong while fetching ahjs. Please try again later."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         try:
             ahj = get_object_or_404(AHJ, id=id)
             ahj_serializer = AHJDetailSerializer(ahj)
@@ -43,8 +63,12 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 data["state_specific_ic_codes"] = state_specific_ic_codes_serializer.data
 
             if ahj_requirement:
+                ahj_requirement_remarks = AHJRequirementRemark.objects.filter(ahj_requirement_id=ahj_requirement.id).all()
                 ahj_requirement_serializer = AHJRequirementSerializer(ahj_requirement)
                 data["ahj_requirement"] = ahj_requirement_serializer.data
+                
+                ahj_requirement_remarks_serializer = AHJRequirementRemarkSerializer(ahj_requirement_remarks, many=True)
+                data["ahj_requirement"]["remarks"] = ahj_requirement_remarks_serializer.data
 
             ahj_specific_requirement = AHJSpecificRequirement.objects.filter(ahj_id=id).first()
             if ahj_specific_requirement:
@@ -94,6 +118,6 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
             logger.error(f"Failed to get AHJ info: {e}", exc_info=True)
             return JsonResponse({
                 "error": "SERVER_ERROR",
-                "message": "Something went wrong while fetching user. Please try again later."
+                "message": "Something went wrong while fetching ahj. Please try again later."
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     

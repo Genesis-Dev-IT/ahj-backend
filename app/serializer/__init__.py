@@ -1,6 +1,6 @@
 from .user_serializer import UserSerializer
 from .ahj_serializer import (
-    AHJDetailSerializer, AHJRequirementSerializer, AHJSpecificRequirementSerializer,
+    AHJDetailSerializer, AHJRequirementSerializer, AHJRequirementRemarkSerializer, AHJSpecificRequirementSerializer,
     AHJElectricalRequirementSerializer, AHJStructuralSetbackRequirementSerializer, AHJGroundMountRequirementSerializer
 )
 

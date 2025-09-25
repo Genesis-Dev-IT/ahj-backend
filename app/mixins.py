@@ -39,7 +39,10 @@ class ApiTokenValidityCheckMixin:
 
         # 1. Check token existence + active
         try:
-            api_token = ApiToken.objects.select_related("user", "plan").get(
+            # api_token = ApiToken.objects.select_related("user", "plan").get(
+            #     token=plain_token, active=True
+            # )
+            api_token = ApiToken.objects.select_related("user").get(
                 token=plain_token, active=True
             )
         except ApiToken.DoesNotExist:
