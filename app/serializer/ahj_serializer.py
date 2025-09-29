@@ -15,10 +15,11 @@ class AHJRequirementSerializer(serializers.ModelSerializer):
         exclude = ('id', 'ahj', 'created_at', 'updated_at')
 
 class AHJRequirementRemarkSerializer(serializers.ModelSerializer):
+    author = serializers.CharField(source="created_by.full_name", read_only=True)
     class Meta:
         model = AHJRequirementRemark
         #if id not needed add in exclude
-        exclude = ('ahj_requirement', 'created_at', 'updated_at', 'created_by', 'updated_by')
+        exclude = ('ahj_requirement', 'updated_at', 'updated_by','created_by')
         # exclude = ('id', 'ahj_requirement', 'created_at', 'updated_at', 'created_by', 'updated_by')
 
 class AHJSpecificRequirementSerializer(serializers.ModelSerializer):

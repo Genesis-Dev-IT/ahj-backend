@@ -29,7 +29,9 @@ class UtilitySerializer(serializers.ModelSerializer):
         exclude = ("id", "created_at", "updated_at", "created_by", "updated_by")
 
 class UtilityRequirementRemarkSerializer(serializers.ModelSerializer):
+    author = serializers.CharField(source="created_by.full_name", read_only=True)
+
     class Meta:
         model = UtilityRequirementRemark
-        exclude = ('utility', 'created_at', 'updated_at', 'created_by', 'updated_by')
+        exclude = ('utility', 'updated_at', 'created_by', 'updated_by')
 
