@@ -45,7 +45,7 @@ class UtilityDetailView(ApiTokenValidityCheckMixin, View):
             utility = get_object_or_404(Utility, id=id)
             utility_serializer = UtilitySerializer(utility)
             data={
-                "baisc_info":utility_serializer.data,
+                "basic_info":utility_serializer.data,
                 "solar_info":None,
                 "requirements":{}
             }

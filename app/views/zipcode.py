@@ -25,6 +25,7 @@ class ZipCodeAHJUtilityMappingDetailView(View):
                 "error":None,
                 "message":"AHJs, Utility fetched successfully",
                 "data": {
+                    "zipcode": id,
                     "ahjs": ahjs,
                     "utilities": utilities
                 }
