@@ -1,12 +1,13 @@
 from django.urls import path
 from app.views.health import HealthCheck
 from app.views.user import UserDetailView
-from app.views.ahj import AHJDetailView
-from app.views.utility import UtilityDetailView
+from app.views.ahj import AHJDetailView, AHJRemarkView
+from app.views.utility import UtilityDetailView, UtilityRemarkView
 from app.views.zipcode import ZipCodeAHJUtilityMappingDetailView
 from app.views.api_token import APITokenDetailView
 from app.views.user_subscription import UserSuscriptionDetailView
-from app.views.api_usage import ApiUsageHistoryView
+from app.views.api_usage import AHJSearchHistoryView, UtilitySearchHistoryView
+
 
 urlpatterns = [
     path('health', HealthCheck.as_view(), name='health-check'),
@@ -14,10 +15,15 @@ urlpatterns = [
     path('v1/user/<int:id>', UserDetailView.as_view(), name='get-user'),
     path('v1/ahj', AHJDetailView.as_view(), name='list-ahj-detail'),
     path('v1/ahj/<int:id>', AHJDetailView.as_view(), name='ahj-detail'),
+    path("v1/ahj/<int:id>/requirements/<int:req_id>/remarks", AHJRemarkView.as_view(), name='ahj-remarks'),
+    path("v1/ahj/<int:id>/requirements/<int:req_id>/remarks/<int:remark_id>", AHJRemarkView.as_view(), name='ahj-remark'),
     path('v1/utility', UtilityDetailView.as_view(), name='list-utility-detail'),
     path('v1/utility/<int:id>', UtilityDetailView.as_view(), name='utility-detail'),
+    path("v1/utility/<int:id>/remarks", UtilityRemarkView.as_view(), name='utility-remarks'),
+    path("v1/utility/<int:id>/remarks/<int:remark_id>", UtilityRemarkView.as_view(), name='utility-remark'),
     path('v1/zipcode/<str:id>', ZipCodeAHJUtilityMappingDetailView.as_view(), name='ahj-utility-for-a-zipcode'),
     path('v1/token', APITokenDetailView.as_view(), name='api-token-detail-view'),
     path('v1/subscription', UserSuscriptionDetailView.as_view(), name='user-subscription-detail-view'),
-    path('v1/api-usage/', ApiUsageHistoryView.as_view(), name='api-usage-history'),
+    path("v1/ahj-search-history", AHJSearchHistoryView.as_view(), name="ahj-search-history"),
+    path("v1/utility-search-history", UtilitySearchHistoryView.as_view(), name="utility-search-history"),
 ]

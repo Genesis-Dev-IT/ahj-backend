@@ -2,6 +2,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views import View
 from django.http import JsonResponse
+from django.db import transaction
 from app.models import (
         AHJ, AHJElectricalRequirement, AHJGroundMountRequirement, 
         AHJRequirement, AHJRequirementRemark, AHJSpecificRequirement, AHJStructuralSetbackRequirement, ApiUsage, State, StateSpecificInformation
@@ -120,4 +121,139 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 "error": "SERVER_ERROR",
                 "message": "Something went wrong while fetching ahj. Please try again later."
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@method_decorator(csrf_exempt, name="dispatch")
+class AHJRemarkView(ApiTokenValidityCheckMixin, View):
+    def get(self, request, id, req_id, remark_id=None):
+        try:
+            if not remark_id:
+                ahj_req = get_object_or_404(AHJRequirement, id=req_id, ahj_id=id)
+                remarks = AHJRequirementRemark.objects.filter(ahj_requirement_id=ahj_req.id)
+
+                remarks_serializer = AHJRequirementRemarkSerializer(remarks, many=True)
+
+                return JsonResponse(
+                    {
+                        "error":None,
+                        "message":"AHJ Requirement Remarks fetched successfully!",
+                        "data": remarks_serializer.data
+                    }
+                    ,status=status.HTTP_200_OK
+                )
+        except Http404:
+            return JsonResponse({
+                "error": "NOT_FOUND",
+                "message": f"AHJ Requirement with id {req_id} for AHJ with id {id} does not exist."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Failed to get AHJ info: {e}", exc_info=True)
+            return JsonResponse({
+                "error": "SERVER_ERROR",
+                "message": "Something went wrong while fetching ahjs. Please try again later."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        try:
+            ahj_req = get_object_or_404(AHJRequirement, id=req_id, ahj_id=id)
+            remark = get_object_or_404(AHJRequirementRemark, id=remark_id, ahj_requirement_id=ahj_req.id)
+
+            remarks_serializer = AHJRequirementRemarkSerializer(remark)
+
+            return JsonResponse(
+                {
+                    "error":None,
+                    "message":"AHJ Requirement Remark fetched successfully!",
+                    "data": remarks_serializer.data
+                }
+                ,status=status.HTTP_200_OK
+            )
+        except Http404:
+            return JsonResponse({
+                "error": "NOT_FOUND",
+                "message": f"Remark {remark_id} AHJ Requirement with id {req_id} for AHJ with id {id} does not exist."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            logger.error(f"Failed to get AHJ info: {e}", exc_info=True)
+            return JsonResponse({
+                "error": "SERVER_ERROR",
+                "message": "Something went wrong while fetching ahj. Please try again later."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+    def post(self, request, id, req_id):
+        try:
+            body = JSONParser().parse(request)
+            remark_text = body.get("remark", None)
+
+            if not remark_text:
+                return JsonResponse({
+                    "error": "REMARK_TEXT_REQUIRED",
+                    "message": "The remark text must be present and not empty."
+                }, status=400)
+
+            ahj_req = get_object_or_404(AHJRequirement, id=req_id, ahj_id=id)
+
+            with transaction.atomic():
+                remark = AHJRequirementRemark.objects.create(
+                    remark = remark_text,
+                    created_by = request.api_token.user,
+                    ahj_requirement = ahj_req
+                )
+
+                remark.save()
+
+            return JsonResponse(
+                {
+                    "error":None,
+                    "message":"AHJ Requirement Remark created successfully!",
+                }
+                ,status=status.HTTP_201_CREATED
+            )
+        except Http404:
+            return JsonResponse({
+                "error": "NOT_FOUND",
+                "message": f"AHJ Requirement with id {req_id} for AHJ with id {id} does not exist."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Failed to get AHJ info: {e}", exc_info=True)
+            return JsonResponse({
+                "error": "SERVER_ERROR",
+                "message": "Something went wrong while fetching ahjs. Please try again later."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def patch(self, request, id, req_id, remark_id):
+        try:
+            body = JSONParser().parse(request)
+            remark_text = body.get("remark", None)
+
+            if not remark_text:
+                return JsonResponse({
+                    "error": "REMARK_TEXT_REQUIRED",
+                    "message": "The remark text must be present and not empty."
+                }, status=400)
+
+            ahj_req = get_object_or_404(AHJRequirement, id=req_id, ahj_id=id)
+            remark = get_object_or_404(AHJRequirementRemark, id=remark_id, ahj_requirement_id=ahj_req.id)
+
+            with transaction.atomic():
+                remark.remark = remark_text
+                remark.updated_by = request.api_token.user
+                remark.save()
+
+            return JsonResponse(
+                {
+                    "error":None,
+                    "message":"AHJ Requirement Remark updated successfully!",
+                }
+                ,status=status.HTTP_200_OK
+            )
+        except Http404:
+            return JsonResponse({
+                "error": "NOT_FOUND",
+                "message": f"Remark {remark_id} AHJ Requirement with id {req_id} for AHJ with id {id} does not exist."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Failed to get AHJ info: {e}", exc_info=True)
+            return JsonResponse({
+                "error": "SERVER_ERROR",
+                "message": "Something went wrong while fetching ahjs. Please try again later."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

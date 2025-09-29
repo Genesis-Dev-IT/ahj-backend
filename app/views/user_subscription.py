@@ -56,7 +56,7 @@ class UserSuscriptionDetailView(LoginAuthTokenVerificationMixin, View):
             return JsonResponse({
                     "error":None,
                     "message":"User subscribed to plan successfully."
-                }, status=status.HTTP_200_OK)
+                }, status=status.HTTP_201_CREATED)
         
         except Http404:
             return JsonResponse({

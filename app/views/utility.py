@@ -2,6 +2,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views import View
 from django.http import JsonResponse
+from django.db import transaction
 from app.models import (
     Utility, ProjectLevel, SolarUtility, SolarUtilityPart1Requirement, 
     SolarUtilityPart2Requirement, ApiUsage, UtilityRequirementRemark
@@ -107,6 +108,142 @@ class UtilityDetailView(ApiTokenValidityCheckMixin, View):
                 "message": f"Utility with id {id} does not exist."
             }, status=status.HTTP_400_BAD_REQUEST)
 
+        except Exception as e:
+            logger.error(f"Failed to get Utility info: {e}", exc_info=True)
+            return JsonResponse({
+                "error": "SERVER_ERROR",
+                "message": "Something went wrong while fetching utility. Please try again later."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@method_decorator(csrf_exempt, name="dispatch")
+class UtilityRemarkView(ApiTokenValidityCheckMixin, View):
+    def get(self, request, id, remark_id=None):
+        try:
+            if not remark_id:
+                utility = get_object_or_404(Utility, id=id)
+                remarks = UtilityRequirementRemark.objects.filter(utility_id=utility.id)
+
+                remarks_serializer = UtilityRequirementRemarkSerializer(remarks, many=True)
+
+                return JsonResponse(
+                    {
+                        "error":None,
+                        "message":"Utility Requirement Remarks fetched successfully!",
+                        "data": remarks_serializer.data
+                    }
+                    ,status=status.HTTP_200_OK
+                )
+        except Http404:
+            return JsonResponse({
+                "error": "NOT_FOUND",
+                "message": f"Utility with id {id} does not exist."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Failed to get Utility info: {e}", exc_info=True)
+            return JsonResponse({
+                "error": "SERVER_ERROR",
+                "message": "Something went wrong while fetching utility. Please try again later."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        try:
+            utility = get_object_or_404(Utility, id=id)
+            remark = get_object_or_404(UtilityRequirementRemark, id=remark_id, utility_id=utility.id)
+
+            remarks_serializer = UtilityRequirementRemarkSerializer(remark)
+
+            return JsonResponse(
+                {
+                    "error":None,
+                    "message":"Utility Requirement Remark fetched successfully!",
+                    "data": remarks_serializer.data
+                }
+                ,status=status.HTTP_200_OK
+            )
+        except Http404:
+            return JsonResponse({
+                "error": "NOT_FOUND",
+                "message": f"Remark {remark_id} for Utility with id {id} does not exist."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            logger.error(f"Failed to get Utility info: {e}", exc_info=True)
+            return JsonResponse({
+                "error": "SERVER_ERROR",
+                "message": "Something went wrong while fetching utility. Please try again later."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def post(self, request, id):
+        try:
+            body = JSONParser().parse(request)
+            remark_text = body.get("remark", None)
+
+            if not remark_text:
+                return JsonResponse({
+                    "error": "REMARK_TEXT_REQUIRED",
+                    "message": "The remark text must be present and not empty."
+                }, status=400)
+
+            utility = get_object_or_404(Utility, id=id)
+
+            with transaction.atomic():
+                remark = UtilityRequirementRemark.objects.create(
+                    remark = remark_text,
+                    created_by = request.api_token.user,
+                    utility = utility
+                )
+
+                remark.save()
+
+            return JsonResponse(
+                {
+                    "error":None,
+                    "message":"Utility Requirement Remark created successfully!",
+                }
+                ,status=status.HTTP_201_CREATED
+            )
+        except Http404:
+            return JsonResponse({
+                "error": "NOT_FOUND",
+                "message": f"Utility with id {id} does not exist."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Failed to get AHJ info: {e}", exc_info=True)
+            return JsonResponse({
+                "error": "SERVER_ERROR",
+                "message": "Something went wrong while fetching utility. Please try again later."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def patch(self, request, id, remark_id):
+        try:
+            body = JSONParser().parse(request)
+            remark_text = body.get("remark", None)
+
+            if not remark_text:
+                return JsonResponse({
+                    "error": "REMARK_TEXT_REQUIRED",
+                    "message": "The remark text must be present and not empty."
+                }, status=400)
+
+            utility = get_object_or_404(Utility, id=id)
+            remark = get_object_or_404(UtilityRequirementRemark, id=remark_id, utility_id=utility.id)
+
+            with transaction.atomic():
+                remark.remark = remark_text
+                remark.updated_by = request.api_token.user
+                remark.save()
+
+            return JsonResponse(
+                {
+                    "error":None,
+                    "message":"Utility Requirement Remark updated successfully!",
+                }
+                ,status=status.HTTP_200_OK
+            )
+        except Http404:
+            return JsonResponse({
+                "error": "NOT_FOUND",
+                "message": f"Remark {remark_id} for Utility with id {id} does not exist."
+            }, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logger.error(f"Failed to get Utility info: {e}", exc_info=True)
             return JsonResponse({

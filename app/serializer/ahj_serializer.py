@@ -12,7 +12,7 @@ from app.models import (
 class AHJRequirementSerializer(serializers.ModelSerializer):
     class Meta:
         model = AHJRequirement
-        exclude = ('id', 'ahj', 'created_at', 'updated_at')
+        exclude = ('ahj', 'created_at', 'updated_at')
 
 class AHJRequirementRemarkSerializer(serializers.ModelSerializer):
     author = serializers.CharField(source="created_by.full_name", read_only=True)
@@ -46,4 +46,4 @@ class AHJGroundMountRequirementSerializer(serializers.ModelSerializer):
 class AHJDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = AHJ
-        exclude = ('id', 'created_at', 'updated_at', 'created_by', 'updated_by')
+        exclude = ('created_at', 'updated_at', 'created_by', 'updated_by')
