@@ -53,23 +53,25 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 "ahj_electrical_requirement":None,
                 "ahj_structural_setback_requirement":None,
                 "ahj_ground_mount_requirement":None,
-                "state_specific_ic_codes": None
+                "state_specific_ic_codes": None,
+                "remarks": []
             }
             ahj_requirement = AHJRequirement.objects.filter(ahj_id=id).first()
             state = State.objects.get(code=ahj.state_code)
             state_specific_ic_codes = state.specific_information.all()
+
+            ahj_remarks = AHJRemark.objects.filter(ahj_id=ahj.id).all()
+            ahj_remarks_serializer = AHJRemarkSerializer(ahj_remarks, many=True)
+            data["remarks"] = ahj_remarks_serializer.data
 
             if state_specific_ic_codes:
                 state_specific_ic_codes_serializer = StateSpecificInformationSerializer(state_specific_ic_codes, many=True)
                 data["state_specific_ic_codes"] = state_specific_ic_codes_serializer.data
 
             if ahj_requirement:
-                ahj_requirement_remarks = AHJRemark.objects.filter(ahj_requirement_id=ahj_requirement.id).all()
+                
                 ahj_requirement_serializer = AHJRequirementSerializer(ahj_requirement)
                 data["ahj_requirement"] = ahj_requirement_serializer.data
-                
-                ahj_requirement_remarks_serializer = AHJRemarkSerializer(ahj_requirement_remarks, many=True)
-                data["remarks"] = ahj_requirement_remarks_serializer.data
 
             ahj_specific_requirement = AHJSpecificRequirement.objects.filter(ahj_id=id).first()
             if ahj_specific_requirement:
