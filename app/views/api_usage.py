@@ -30,7 +30,7 @@ class AHJSearchHistoryView(ApiTokenValidityCheckMixin, APIView):
             data.append({
                 "data_id": usage.data_id,
                 "search_ts": usage.created_at,
-                "ahj_name": ahj.name if ahj else None,
+                "name": ahj.name if ahj else None,
             })
 
         return Response({"data": data})
@@ -60,7 +60,7 @@ class UtilitySearchHistoryView(ApiTokenValidityCheckMixin, APIView):
             data.append({
                 "data_id": usage.data_id,
                 "search_ts": usage.created_at,
-                "utility_name": utility.name if utility else None,
+                "name": utility.name if utility else None,
             })
 
         return Response({"data": data})
