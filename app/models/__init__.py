@@ -1,12 +1,12 @@
 from .user import User
 
 from .ahj import (
-    AHJ, AHJRequirement, AHJRequirementRemark, AHJSpecificRequirement, AHJElectricalRequirement, AHJStructuralSetbackRequirement, 
+    AHJ, AHJRequirement, AHJRemark, AHJSpecificRequirement, AHJElectricalRequirement, AHJStructuralSetbackRequirement, 
     AHJGroundMountRequirement, ZipcodeAHJMapping
     )
 
 from .utility import(
-    Utility, ProjectLevel, SolarUtility, SolarUtilityPart1Requirement, SolarUtilityPart2Requirement, ZipcodeUtilityMapping, UtilityRequirementRemark
+    Utility, ProjectLevel, SolarUtility, SolarUtilityPart1Requirement, SolarUtilityPart2Requirement, ZipcodeUtilityMapping, UtilityRemark
 )
 
 from .subscription import(

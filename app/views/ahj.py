@@ -5,14 +5,14 @@ from django.http import JsonResponse
 from django.db import transaction
 from app.models import (
         AHJ, AHJElectricalRequirement, AHJGroundMountRequirement, 
-        AHJRequirement, AHJRequirementRemark, AHJSpecificRequirement, AHJStructuralSetbackRequirement, ApiUsage, State, StateSpecificInformation
+        AHJRequirement, AHJRemark, AHJSpecificRequirement, AHJStructuralSetbackRequirement, ApiUsage, State, StateSpecificInformation
     )
 from rest_framework.parsers import JSONParser
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from app.serializer import (
-    AHJDetailSerializer, AHJRequirementSerializer, AHJRequirementRemarkSerializer, AHJElectricalRequirementSerializer, AHJGroundMountRequirementSerializer,
+    AHJDetailSerializer, AHJRequirementSerializer, AHJRemarkSerializer, AHJElectricalRequirementSerializer, AHJGroundMountRequirementSerializer,
     AHJSpecificRequirementSerializer, AHJStructuralSetbackRequirementSerializer, StateSpecificInformationSerializer
 )
 from app.mixins import ApiTokenValidityCheckMixin
@@ -64,12 +64,12 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 data["state_specific_ic_codes"] = state_specific_ic_codes_serializer.data
 
             if ahj_requirement:
-                ahj_requirement_remarks = AHJRequirementRemark.objects.filter(ahj_requirement_id=ahj_requirement.id).all()
+                ahj_requirement_remarks = AHJRemark.objects.filter(ahj_requirement_id=ahj_requirement.id).all()
                 ahj_requirement_serializer = AHJRequirementSerializer(ahj_requirement)
                 data["ahj_requirement"] = ahj_requirement_serializer.data
                 
-                ahj_requirement_remarks_serializer = AHJRequirementRemarkSerializer(ahj_requirement_remarks, many=True)
-                data["ahj_requirement"]["remarks"] = ahj_requirement_remarks_serializer.data
+                ahj_requirement_remarks_serializer = AHJRemarkSerializer(ahj_requirement_remarks, many=True)
+                data["remarks"] = ahj_requirement_remarks_serializer.data
 
             ahj_specific_requirement = AHJSpecificRequirement.objects.filter(ahj_id=id).first()
             if ahj_specific_requirement:
@@ -124,18 +124,17 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class AHJRemarkView(ApiTokenValidityCheckMixin, View):
-    def get(self, request, id, req_id, remark_id=None):
+    def get(self, request, id, remark_id=None):
         try:
             if not remark_id:
-                ahj_req = get_object_or_404(AHJRequirement, id=req_id, ahj_id=id)
-                remarks = AHJRequirementRemark.objects.filter(ahj_requirement_id=ahj_req.id)
-
-                remarks_serializer = AHJRequirementRemarkSerializer(remarks, many=True)
+                ahj = get_object_or_404(AHJ, id=id)
+                remarks = AHJRemark.objects.filter(ahj_id=ahj.id)
+                remarks_serializer = AHJRemarkSerializer(remarks, many=True)
 
                 return JsonResponse(
                     {
                         "error":None,
-                        "message":"AHJ Requirement Remarks fetched successfully!",
+                        "message":"AHJ Remarks fetched successfully!",
                         "data": remarks_serializer.data
                     }
                     ,status=status.HTTP_200_OK
@@ -143,7 +142,7 @@ class AHJRemarkView(ApiTokenValidityCheckMixin, View):
         except Http404:
             return JsonResponse({
                 "error": "NOT_FOUND",
-                "message": f"AHJ Requirement with id {req_id} for AHJ with id {id} does not exist."
+                "message": f"AHJ with id {id} does not exist."
             }, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logger.error(f"Failed to get AHJ info: {e}", exc_info=True)
@@ -153,15 +152,14 @@ class AHJRemarkView(ApiTokenValidityCheckMixin, View):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         try:
-            ahj_req = get_object_or_404(AHJRequirement, id=req_id, ahj_id=id)
-            remark = get_object_or_404(AHJRequirementRemark, id=remark_id, ahj_requirement_id=ahj_req.id)
-
-            remarks_serializer = AHJRequirementRemarkSerializer(remark)
+            ahj = get_object_or_404(AHJ, id=id)
+            remark = get_object_or_404(AHJRemark, id=remark_id, ahj_id=ahj.id)
+            remarks_serializer = AHJRemarkSerializer(remark)
 
             return JsonResponse(
                 {
                     "error":None,
-                    "message":"AHJ Requirement Remark fetched successfully!",
+                    "message":"AHJ Remark fetched successfully!",
                     "data": remarks_serializer.data
                 }
                 ,status=status.HTTP_200_OK
@@ -169,7 +167,7 @@ class AHJRemarkView(ApiTokenValidityCheckMixin, View):
         except Http404:
             return JsonResponse({
                 "error": "NOT_FOUND",
-                "message": f"Remark {remark_id} AHJ Requirement with id {req_id} for AHJ with id {id} does not exist."
+                "message": f"Remark {remark_id} for AHJ with id {id} does not exist."
             }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
@@ -179,7 +177,7 @@ class AHJRemarkView(ApiTokenValidityCheckMixin, View):
                 "message": "Something went wrong while fetching ahj. Please try again later."
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-    def post(self, request, id, req_id):
+    def post(self, request, id):
         try:
             body = JSONParser().parse(request)
             remark_text = body.get("remark", None)
@@ -190,13 +188,13 @@ class AHJRemarkView(ApiTokenValidityCheckMixin, View):
                     "message": "The remark text must be present and not empty."
                 }, status=400)
 
-            ahj_req = get_object_or_404(AHJRequirement, id=req_id, ahj_id=id)
+            ahj = get_object_or_404(AHJ, id=id)
 
             with transaction.atomic():
-                remark = AHJRequirementRemark.objects.create(
+                remark = AHJRemark.objects.create(
                     remark = remark_text,
                     created_by = request.api_token.user,
-                    ahj_requirement = ahj_req
+                    ahj = ahj
                 )
 
                 remark.save()
@@ -204,14 +202,14 @@ class AHJRemarkView(ApiTokenValidityCheckMixin, View):
             return JsonResponse(
                 {
                     "error":None,
-                    "message":"AHJ Requirement Remark created successfully!",
+                    "message":"AHJ Remark created successfully!",
                 }
                 ,status=status.HTTP_201_CREATED
             )
         except Http404:
             return JsonResponse({
                 "error": "NOT_FOUND",
-                "message": f"AHJ Requirement with id {req_id} for AHJ with id {id} does not exist."
+                "message": f"AHJ with id {id} does not exist."
             }, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logger.error(f"Failed to get AHJ info: {e}", exc_info=True)
@@ -220,7 +218,7 @@ class AHJRemarkView(ApiTokenValidityCheckMixin, View):
                 "message": "Something went wrong while fetching ahjs. Please try again later."
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-    def patch(self, request, id, req_id, remark_id):
+    def patch(self, request, id, remark_id):
         try:
             body = JSONParser().parse(request)
             remark_text = body.get("remark", None)
@@ -231,8 +229,8 @@ class AHJRemarkView(ApiTokenValidityCheckMixin, View):
                     "message": "The remark text must be present and not empty."
                 }, status=400)
 
-            ahj_req = get_object_or_404(AHJRequirement, id=req_id, ahj_id=id)
-            remark = get_object_or_404(AHJRequirementRemark, id=remark_id, ahj_requirement_id=ahj_req.id)
+            ahj = get_object_or_404(AHJ, id=id)
+            remark = get_object_or_404(AHJRemark, id=remark_id, ahj_id=ahj.id)
 
             with transaction.atomic():
                 remark.remark = remark_text
@@ -242,14 +240,14 @@ class AHJRemarkView(ApiTokenValidityCheckMixin, View):
             return JsonResponse(
                 {
                     "error":None,
-                    "message":"AHJ Requirement Remark updated successfully!",
+                    "message":"AHJ Remark updated successfully!",
                 }
                 ,status=status.HTTP_200_OK
             )
         except Http404:
             return JsonResponse({
                 "error": "NOT_FOUND",
-                "message": f"Remark {remark_id} AHJ Requirement with id {req_id} for AHJ with id {id} does not exist."
+                "message": f"Remark {remark_id} for AHJ with id {id} does not exist."
             }, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logger.error(f"Failed to get AHJ info: {e}", exc_info=True)

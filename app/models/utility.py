@@ -52,7 +52,7 @@ class Utility(models.Model):
     def __str__(self):
         return self.name
 
-class UtilityRequirementRemark(models.Model):
+class UtilityRemark(models.Model):
     id = models.BigAutoField(primary_key=True)
     remark = models.TextField(null=True, blank=True)
     created_at = models.BigIntegerField(default=current_timestamp)
@@ -62,7 +62,7 @@ class UtilityRequirementRemark(models.Model):
     utility = models.ForeignKey(Utility, on_delete=models.CASCADE, null=False)
 
     class Meta:
-        db_table = "utility_requirement_remarks"
+        db_table = "utility_remarks"
 
     def save(self, *args, **kwargs):
         """Update 'updated_at' every time the object is saved."""

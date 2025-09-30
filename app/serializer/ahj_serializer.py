@@ -2,7 +2,7 @@ from rest_framework import serializers
 from app.models import (
     AHJ,
     AHJRequirement,
-    AHJRequirementRemark,
+    AHJRemark,
     AHJSpecificRequirement,
     AHJElectricalRequirement,
     AHJStructuralSetbackRequirement,
@@ -14,13 +14,11 @@ class AHJRequirementSerializer(serializers.ModelSerializer):
         model = AHJRequirement
         exclude = ('ahj', 'created_at', 'updated_at')
 
-class AHJRequirementRemarkSerializer(serializers.ModelSerializer):
+class AHJRemarkSerializer(serializers.ModelSerializer):
     author = serializers.CharField(source="created_by.full_name", read_only=True)
     class Meta:
-        model = AHJRequirementRemark
-        #if id not needed add in exclude
-        exclude = ('ahj_requirement', 'updated_at', 'updated_by','created_by')
-        # exclude = ('id', 'ahj_requirement', 'created_at', 'updated_at', 'created_by', 'updated_by')
+        model = AHJRemark
+        exclude = ('ahj', 'updated_at', 'updated_by','created_by')
 
 class AHJSpecificRequirementSerializer(serializers.ModelSerializer):
     class Meta:

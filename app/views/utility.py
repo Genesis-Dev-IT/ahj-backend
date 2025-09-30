@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.db import transaction
 from app.models import (
     Utility, ProjectLevel, SolarUtility, SolarUtilityPart1Requirement, 
-    SolarUtilityPart2Requirement, ApiUsage, UtilityRequirementRemark
+    SolarUtilityPart2Requirement, ApiUsage, UtilityRemark
 )
 from rest_framework.parsers import JSONParser
 from rest_framework import status
@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 from app.serializer import (
     ProjectLevelSerializer, SolarUtilitySerializer, SolarUtilityPart1RequirementSerializer,
-    SolarUtilityPart2RequirementSerializer, UtilitySerializer, UtilityRequirementRemarkSerializer
+    SolarUtilityPart2RequirementSerializer, UtilitySerializer, UtilityRemarkSerializer
 )
 from app.mixins import ApiTokenValidityCheckMixin
 import logging
@@ -80,9 +80,9 @@ class UtilityDetailView(ApiTokenValidityCheckMixin, View):
                 data["solar_info"] = None
                 data["requirements"] = {}
 
-            utility_requirement_remarks = UtilityRequirementRemark.objects.filter(utility_id=utility.id).all()
-            utility_requirement_remarks_serializer = UtilityRequirementRemarkSerializer(utility_requirement_remarks, many=True)
-            data["requirements"]["remarks"] = utility_requirement_remarks_serializer.data
+            utility_requirement_remarks = UtilityRemark.objects.filter(utility_id=utility.id).all()
+            utility_requirement_remarks_serializer = UtilityRemarkSerializer(utility_requirement_remarks, many=True)
+            data["remarks"] = utility_requirement_remarks_serializer.data
 
             # create entry in api_usage after successfull api hit
             try:
@@ -121,9 +121,9 @@ class UtilityRemarkView(ApiTokenValidityCheckMixin, View):
         try:
             if not remark_id:
                 utility = get_object_or_404(Utility, id=id)
-                remarks = UtilityRequirementRemark.objects.filter(utility_id=utility.id)
+                remarks = UtilityRemark.objects.filter(utility_id=utility.id)
 
-                remarks_serializer = UtilityRequirementRemarkSerializer(remarks, many=True)
+                remarks_serializer = UtilityRemarkSerializer(remarks, many=True)
 
                 return JsonResponse(
                     {
@@ -147,9 +147,9 @@ class UtilityRemarkView(ApiTokenValidityCheckMixin, View):
 
         try:
             utility = get_object_or_404(Utility, id=id)
-            remark = get_object_or_404(UtilityRequirementRemark, id=remark_id, utility_id=utility.id)
+            remark = get_object_or_404(UtilityRemark, id=remark_id, utility_id=utility.id)
 
-            remarks_serializer = UtilityRequirementRemarkSerializer(remark)
+            remarks_serializer = UtilityRemarkSerializer(remark)
 
             return JsonResponse(
                 {
@@ -186,7 +186,7 @@ class UtilityRemarkView(ApiTokenValidityCheckMixin, View):
             utility = get_object_or_404(Utility, id=id)
 
             with transaction.atomic():
-                remark = UtilityRequirementRemark.objects.create(
+                remark = UtilityRemark.objects.create(
                     remark = remark_text,
                     created_by = request.api_token.user,
                     utility = utility
@@ -225,7 +225,7 @@ class UtilityRemarkView(ApiTokenValidityCheckMixin, View):
                 }, status=400)
 
             utility = get_object_or_404(Utility, id=id)
-            remark = get_object_or_404(UtilityRequirementRemark, id=remark_id, utility_id=utility.id)
+            remark = get_object_or_404(UtilityRemark, id=remark_id, utility_id=utility.id)
 
             with transaction.atomic():
                 remark.remark = remark_text
