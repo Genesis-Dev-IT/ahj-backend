@@ -3,6 +3,10 @@ from genesis.utils import current_timestamp
 from app.models import User
 from django.db.models import Q
 from .state import State, StateSpecificInformation
+from .metadata import (
+    ReferenceCodes, PermitType 
+)
+
 
 class AHJ(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -193,3 +197,56 @@ class ZipcodeAHJMapping(models.Model):
         indexes = [
             models.Index(fields=["zipcode", "ahj"]),
         ]
+
+class AhjCodeMapping(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="code_mappings")
+    code = models.ForeignKey(ReferenceCodes, on_delete=models.CASCADE, related_name="ahj_mappings")
+
+
+    class Meta:
+        db_table = "ahj_code_mapping"
+        unique_together = ("ahj", "code")
+
+    def __str__(self):
+        return f"{self.ahj} (ID: {self.id})"
+    
+
+class AHJPermitMapping(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="permit_mappings")
+    ahj_permit_type = models.ForeignKey(PermitType, on_delete=models.CASCADE, related_name="ahj_mappings")
+
+    class Meta:
+        db_table = "ahj_permit_mapping"
+        unique_together = ("ahj", "ahj_permit_type")
+
+    def __str__(self):
+        return f"{self.ahj} -> {self.ahj_permit_type}"
+    
+
+
+class AHJSafetyInstructions(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="safety_instructions")
+    equipment_location_remarks = models.TextField(null=True, blank=True)
+    roof_load_remarks = models.TextField(null=True, blank=True)
+
+    class Meta:
+        db_table = "ahj_safety_instructions"
+
+    def __str__(self):
+        return f"Safety Instructions for {self.ahj}"
+
+
+class AHJLabel(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="labels")
+    label_name = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = "ahj_label"
+        unique_together = ("ahj", "label_name")
+        
+    def __str__(self):
+        return f"{self.label_name} ({self.ahj})"

@@ -20,3 +20,7 @@ from .state import(
 from .verticals import (
     RequirementBlock, Vertical, VerticalBlockMapping
 )
+
+from .metadata import (
+   ReferenceCodes, PermitType, StandardLabels
+)

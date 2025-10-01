@@ -8,6 +8,8 @@ from app.views.api_token import APITokenDetailView
 from app.views.user_subscription import UserSuscriptionDetailView
 from app.views.api_usage import AHJSearchHistoryView, UtilitySearchHistoryView
 from app.views.verticals import Verticals
+from app.views.metadata import ReferenceCodesView, PermitTypeView, StandardLabelsView
+
 
 urlpatterns = [
     path('health', HealthCheck.as_view(), name='health-check'),
@@ -27,4 +29,7 @@ urlpatterns = [
     path("v1/ahj-search-history", AHJSearchHistoryView.as_view(), name="ahj-search-history"),
     path("v1/utility-search-history", UtilitySearchHistoryView.as_view(), name="utility-search-history"),
     path('v1/verticals', Verticals.as_view(), name='verticals'),
+     path("v1/reference-codes/", ReferenceCodesView.as_view(), name="reference_codes"),
+    path("v1/permit-types/", PermitTypeView.as_view(), name="permit_types"),
+    path("v1/standard-labels/", StandardLabelsView.as_view(), name="standard_labels"),
 ]
