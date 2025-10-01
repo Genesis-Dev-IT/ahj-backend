@@ -7,7 +7,7 @@ from app.views.zipcode import ZipCodeAHJUtilityMappingDetailView
 from app.views.api_token import APITokenDetailView
 from app.views.user_subscription import UserSuscriptionDetailView
 from app.views.api_usage import AHJSearchHistoryView, UtilitySearchHistoryView
-
+from app.views.verticals import Verticals
 
 urlpatterns = [
     path('health', HealthCheck.as_view(), name='health-check'),
@@ -26,4 +26,5 @@ urlpatterns = [
     path('v1/subscription', UserSuscriptionDetailView.as_view(), name='user-subscription-detail-view'),
     path("v1/ahj-search-history", AHJSearchHistoryView.as_view(), name="ahj-search-history"),
     path("v1/utility-search-history", UtilitySearchHistoryView.as_view(), name="utility-search-history"),
+    path('v1/verticals', Verticals.as_view(), name='verticals'),
 ]

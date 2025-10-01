@@ -16,3 +16,7 @@ from .subscription import(
 from .state import(
     State, StateSpecificInformation
 )
+
+from .verticals import (
+    RequirementBlock, Vertical, VerticalBlockMapping
+)
