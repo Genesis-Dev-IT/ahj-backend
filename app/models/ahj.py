@@ -87,8 +87,11 @@ class AHJElectricalRequirement(models.Model):
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE)
     stamp_required = models.BooleanField(default=False, help_text="Does electrical work require an engineer stamp?")
     ee_stamp_for_main_breaker_derate = models.BooleanField(default=False)
+    ee_stamp_for_main_breaker_derate_remarks = models.TextField(null=True, blank=True)
     pv_meter_required = models.BooleanField(default=False)
+    pv_meter_required_remarks = models.TextField(null=True, blank=True)
     ac_disconnect_type = models.CharField(max_length=20, null=True, blank=True)  # fused, non-fused 
+    ac_disconnect_type_remarks = models.TextField(null=True, blank=True)
 
     # New fields
     one_line_requirement = models.CharField(max_length=50, null=True, blank=True, help_text="One line / three line requirement for residential or commercial property.")
@@ -101,7 +104,7 @@ class AHJElectricalRequirement(models.Model):
 
     # Disconnects
     is_disconnect_required = models.BooleanField(default=False)
-    disconnect_requirement = models.TextField(null=True, blank=True, help_text="Where disconnect is required (AHJ specific requirement).")
+    disconnect_remarks = models.TextField(null=True, blank=True, help_text="Where disconnect is required (AHJ specific requirement).")
 
     # Grounding and bonding
     is_grounding_and_bonding_required = models.BooleanField(default=False)
@@ -172,11 +175,16 @@ class AHJElectricalRequirement(models.Model):
     def __str__(self):
         return f"Electrical Requirement for {self.ahj.name} (ID: {self.id})"
 
-    
+
 class AHJStructuralSetbackRequirement(models.Model):
+    SEAL_TYPE = [
+         ("wet", "Wet"),
+        ("digital", "Digital"),
+    ]
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE)
     stamp_required = models.BooleanField(default=False, help_text="Does structural work require an engineer stamp?")
+    seal_type = models.CharField(max_length=10, choices=SEAL_TYPE, null=True, blank=True, help_text="Type of seal required (Wet or Digital)" )
     fire_setback_distance = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Fire setback in feet (if specified)")
     fire_setback_code_year = models.IntegerField(null=True, blank=True, help_text="Year of fire code used for determining setback") 
     created_at = models.BigIntegerField(default=current_timestamp)
