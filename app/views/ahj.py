@@ -5,14 +5,14 @@ from django.http import JsonResponse
 from django.db import transaction
 from app.models import (
         AHJ, AHJElectricalRequirement, AHJGroundMountRequirement, 
-        AHJRequirement, AHJRemark, AHJStructuralSetbackRequirement, ApiUsage, State, StateSpecificInformation
+        AHJSolarRequirement, AHJRemark, AHJStructuralSetbackRequirement, ApiUsage, State, StateSpecificInformation
     )
 from rest_framework.parsers import JSONParser
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from app.serializer import (
-    AHJDetailSerializer, AHJRequirementSerializer, AHJRemarkSerializer, AHJElectricalRequirementSerializer, AHJGroundMountRequirementSerializer,
+    AHJDetailSerializer, AHJSolarRequirementSerializer, AHJRemarkSerializer, AHJElectricalRequirementSerializer, AHJGroundMountRequirementSerializer,
     AHJStructuralSetbackRequirementSerializer, StateSpecificInformationSerializer
 )
 from app.mixins import ApiTokenValidityCheckMixin
@@ -48,14 +48,14 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
             ahj_serializer = AHJDetailSerializer(ahj)
             data={
                 "ahj":ahj_serializer.data,
-                "ahj_requirement":None,
+                "ahj_solar_requirement":None,
                 "ahj_electrical_requirement":None,
                 "ahj_structural_setback_requirement":None,
                 "ahj_ground_mount_requirement":None,
                 "state_specific_ic_codes": None,
                 "remarks": []
             }
-            ahj_requirement = AHJRequirement.objects.filter(ahj_id=id).first()
+            ahj_solar_requirement = AHJSolarRequirement.objects.filter(ahj_id=id).first()
             state = State.objects.get(code=ahj.state_code)
             state_specific_ic_codes = state.specific_information.all()
 
@@ -67,10 +67,10 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 state_specific_ic_codes_serializer = StateSpecificInformationSerializer(state_specific_ic_codes, many=True)
                 data["state_specific_ic_codes"] = state_specific_ic_codes_serializer.data
 
-            if ahj_requirement:
+            if ahj_solar_requirement:
                 
-                ahj_requirement_serializer = AHJRequirementSerializer(ahj_requirement)
-                data["ahj_requirement"] = ahj_requirement_serializer.data
+                ahj_solar_requirement_serializer = AHJSolarRequirementSerializer(ahj_solar_requirement)
+                data["ahj_solar_requirement"] = ahj_solar_requirement_serializer.data
             
             ahj_electrical_requirement = AHJElectricalRequirement.objects.filter(ahj_id=id).first()
             if ahj_electrical_requirement:

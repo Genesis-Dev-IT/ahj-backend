@@ -1,7 +1,7 @@
 from .user import User
 
 from .ahj import (
-    AHJ, AHJRequirement, AHJRemark, AHJElectricalRequirement, AHJStructuralSetbackRequirement, 
+    AHJ, AHJSolarRequirement, AHJRemark, AHJElectricalRequirement, AHJStructuralSetbackRequirement, 
     AHJGroundMountRequirement, ZipcodeAHJMapping
     )
 

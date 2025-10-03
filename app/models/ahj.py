@@ -43,7 +43,7 @@ class AHJ(models.Model):
         return self.name
 
 
-class AHJRequirement(models.Model):
+class AHJSolarRequirement(models.Model):
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE)
     pv_meter_required = models.BooleanField(default=False)
@@ -52,7 +52,7 @@ class AHJRequirement(models.Model):
     updated_at = models.BigIntegerField(default=current_timestamp)
 
     class Meta:
-        db_table = "ahj_requirement"
+        db_table = "ahj_solar_requirement"
 
     def save(self, *args, **kwargs):
         """Update 'updated_at' every time the object is saved."""

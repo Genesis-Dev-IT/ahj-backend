@@ -1,16 +1,16 @@
 from rest_framework import serializers
 from app.models import (
     AHJ,
-    AHJRequirement,
+    AHJSolarRequirement,
     AHJRemark,
     AHJElectricalRequirement,
     AHJStructuralSetbackRequirement,
     AHJGroundMountRequirement,
 )
 
-class AHJRequirementSerializer(serializers.ModelSerializer):
+class AHJSolarRequirementSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AHJRequirement
+        model = AHJSolarRequirement
         exclude = ('ahj', 'created_at', 'updated_at')
 
 class AHJRemarkSerializer(serializers.ModelSerializer):
