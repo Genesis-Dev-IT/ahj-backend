@@ -88,7 +88,69 @@ class AHJElectricalRequirement(models.Model):
     stamp_required = models.BooleanField(default=False, help_text="Does electrical work require an engineer stamp?")
     ee_stamp_for_main_breaker_derate = models.BooleanField(default=False)
     pv_meter_required = models.BooleanField(default=False)
-    ac_disconnect_type = models.CharField(max_length=20, null=True, blank=True) # fused, non-fused 
+
+    # New fields
+    one_line_requirement = models.CharField(max_length=50, null=True, blank=True, help_text="One line / three line requirement for residential or commercial property.")
+    datasheets = models.URLField(null=True, blank=True, help_text="Link to datasheet.")
+    conductor_sizing_and_ocp = models.TextField(null=True, blank=True, help_text="Conductor sizing and overcurrent protection.")
+
+    # Rapid shutdown
+    is_rsd_needed = models.BooleanField(default=False)
+    rsd_requirement = models.TextField(null=True, blank=True, help_text="RSD should be next to inverter (AHJ specific requirement).")
+
+    # Disconnects
+    is_disconnect_required = models.BooleanField(default=False)
+    disconnect_requirement = models.TextField(null=True, blank=True, help_text="Where disconnect is required (AHJ specific requirement).")
+
+    # Grounding and bonding
+    is_grounding_and_bonding_required = models.BooleanField(default=False)
+    grounding_and_bonding_remarks = models.TextField(null=True, blank=True)
+
+    electrical_panel_connection = models.TextField(null=True, blank=True, help_text="Electrical panel connection (The 120% Rule).")
+    labeling = models.TextField(null=True, blank=True)
+
+    # Loading calculation
+    is_loading_calculation_required = models.BooleanField(default=False)
+    loading_calculation_remarks = models.TextField(null=True, blank=True)
+
+    wire_size_requirements = models.TextField(null=True, blank=True)
+    production_meter_requirements = models.TextField(null=True, blank=True)
+    power_line_filter_requirement = models.TextField(null=True, blank=True)
+    recommended_ic = models.TextField(null=True, blank=True)
+    utility_specific_note_of_eld = models.TextField(null=True, blank=True)
+    electrical_stamping = models.TextField(null=True, blank=True)
+
+    # Components
+    service_panel = models.TextField(null=True, blank=True)
+    interconnection_type = models.TextField(null=True, blank=True)
+    conduit_type = models.TextField(null=True, blank=True)
+    conduit_size = models.TextField(null=True, blank=True)
+    utility_meter = models.TextField(null=True, blank=True)
+    junction_box = models.TextField(null=True, blank=True)
+    grounding = models.TextField(null=True, blank=True)
+    main_service_panel = models.TextField(null=True, blank=True)
+    spd_device = models.TextField(null=True, blank=True)
+    grounding_electrode_conductor = models.TextField(null=True, blank=True)
+
+    ahj_specific_notes = models.TextField(null=True, blank=True)
+
+    # Placard
+    placard_requirement_remarks = models.TextField(null=True, blank=True)
+
+    ess_specific_requirements = models.TextField(null=True, blank=True)
+    e_stop_button_requirement = models.TextField(null=True, blank=True)
+
+    # 3-line diagram
+    three_line_diagram_required = models.BooleanField(default=False)
+    three_line_diagram_remarks = models.TextField(null=True, blank=True)
+
+    certified_electrical_contractor = models.BooleanField(default=False)
+
+    string_details = models.TextField(null=True, blank=True)
+
+    rule_120_percent_required = models.BooleanField(default=False)
+
+    # Timestamps
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)
 
