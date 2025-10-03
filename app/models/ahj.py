@@ -88,6 +88,7 @@ class AHJElectricalRequirement(models.Model):
     stamp_required = models.BooleanField(default=False, help_text="Does electrical work require an engineer stamp?")
     ee_stamp_for_main_breaker_derate = models.BooleanField(default=False)
     pv_meter_required = models.BooleanField(default=False)
+    ac_disconnect_type = models.CharField(max_length=20, null=True, blank=True)  # fused, non-fused 
 
     # New fields
     one_line_requirement = models.CharField(max_length=50, null=True, blank=True, help_text="One line / three line requirement for residential or commercial property.")
@@ -170,6 +171,7 @@ class AHJElectricalRequirement(models.Model):
 
     def __str__(self):
         return f"Electrical Requirement for {self.ahj.name} (ID: {self.id})"
+
     
 class AHJStructuralSetbackRequirement(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -235,11 +237,10 @@ class ZipcodeAHJMapping(models.Model):
             models.Index(fields=["zipcode", "ahj"]),
         ]
 
-class AhjCodeMapping(models.Model):
+class AHJCodeMapping(models.Model):
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="code_mappings")
     code = models.ForeignKey(ReferenceCodes, on_delete=models.CASCADE, related_name="ahj_mappings")
-
 
     class Meta:
         db_table = "ahj_code_mapping"
@@ -259,9 +260,7 @@ class AHJPermitMapping(models.Model):
         unique_together = ("ahj", "ahj_permit_type")
 
     def __str__(self):
-        return f"{self.ahj} -> {self.ahj_permit_type}"
-    
-
+        return f"{self.ahj} -> {self.ahj_permit_type}"  
 
 class AHJSafetyInstructions(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -287,3 +286,19 @@ class AHJLabel(models.Model):
         
     def __str__(self):
         return f"{self.label_name} ({self.ahj})"
+    
+class AHJEnvironmentalData(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="environmental_data")
+    wind_speed = models.FloatField(null=True, blank=True)
+    exposure_category = models.CharField(max_length=10, null=True, blank=True)
+    snow_load = models.FloatField(null=True, blank=True)
+    high_temp = models.FloatField(null=True, blank=True)
+    min_temp = models.FloatField(null=True, blank=True)
+
+    class Meta:
+        db_table = "ahj_environmental_data"
+        unique_together = ("ahj",)
+
+    def __str__(self):
+        return f"Environmental Data for {self.ahj}"

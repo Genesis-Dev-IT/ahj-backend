@@ -5,7 +5,8 @@ from django.http import JsonResponse
 from django.db import transaction
 from app.models import (
         AHJ, AHJElectricalRequirement, AHJGroundMountRequirement, 
-        AHJSolarRequirement, AHJRemark, AHJStructuralSetbackRequirement, ApiUsage, State, StateSpecificInformation
+        AHJSolarRequirement, AHJRemark, AHJStructuralSetbackRequirement, ApiUsage, State, StateSpecificInformation, AHJLabel, AHJSafetyInstructions, AHJCodeMapping, 
+        AHJEnvironmentalData, PermitType, AHJPermitMapping
     )
 from rest_framework.parsers import JSONParser
 from rest_framework import status
@@ -13,7 +14,8 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 from app.serializer import (
     AHJDetailSerializer, AHJSolarRequirementSerializer, AHJRemarkSerializer, AHJElectricalRequirementSerializer, AHJGroundMountRequirementSerializer,
-    AHJStructuralSetbackRequirementSerializer, StateSpecificInformationSerializer
+    AHJStructuralSetbackRequirementSerializer, StateSpecificInformationSerializer, AHJSafetyInstructionsSerializer, AHJLabelSerializer, AHJSafetyInstructionsSerializer,
+    ReferenceCodesSerializer, AHJEnvironmentalDataSerializer, PermitTypeSerializer
 )
 from app.mixins import ApiTokenValidityCheckMixin
 import logging
@@ -53,6 +55,11 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 "ahj_structural_setback_requirement":None,
                 "ahj_ground_mount_requirement":None,
                 "state_specific_ic_codes": None,
+                "ahj_label": None,
+                "ahj_safety_instructions":None,
+                "ahj_environmental_data":None,
+                "codes": [],
+                "permit_required": None,
                 "remarks": []
             }
             ahj_solar_requirement = AHJSolarRequirement.objects.filter(ahj_id=id).first()
@@ -67,8 +74,7 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 state_specific_ic_codes_serializer = StateSpecificInformationSerializer(state_specific_ic_codes, many=True)
                 data["state_specific_ic_codes"] = state_specific_ic_codes_serializer.data
 
-            if ahj_solar_requirement:
-                
+            if ahj_solar_requirement: 
                 ahj_solar_requirement_serializer = AHJSolarRequirementSerializer(ahj_solar_requirement)
                 data["ahj_solar_requirement"] = ahj_solar_requirement_serializer.data
             
@@ -86,6 +92,33 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
             if ahj_ground_mount_requirement:
                 ahj_ground_mount_requirement_serializer = AHJGroundMountRequirementSerializer(ahj_ground_mount_requirement)
                 data["ahj_ground_mount_requirement"] = ahj_ground_mount_requirement_serializer.data
+
+            ahj_label = AHJLabel.objects.filter(ahj_id=id).first()
+            if ahj_label:
+                ahj_label_serializer = AHJLabelSerializer(ahj_label)
+                data["ahj_label"] = ahj_label_serializer.data
+
+            ahj_safety_instructions = AHJSafetyInstructions.objects.filter(ahj_id=id).all()
+            if ahj_safety_instructions:
+                ahj_safety_instructions_serializer = AHJSafetyInstructionsSerializer(ahj_safety_instructions, many=True)
+                data["ahj_safety_instructions"] = ahj_safety_instructions_serializer.data
+
+            ahj_code_mappings = AHJCodeMapping.objects.filter(ahj_id = id).all()
+            
+            codes = [mapping.code for mapping in ahj_code_mappings]
+            code_serializer = ReferenceCodesSerializer(codes, many=True)
+            data["codes"] = code_serializer.data
+
+            ahj_environmental_data = AHJEnvironmentalData.objects.filter(ahj_id=id).first()
+            if ahj_environmental_data:
+                ahj_environmental_data_serializer = AHJEnvironmentalDataSerializer(ahj_environmental_data)
+                data["ahj_environmental_data"] = ahj_environmental_data_serializer.data
+
+
+            ahj_permit_mappings = AHJPermitMapping.objects.filter(ahj_id = id).all()
+            
+            permits = [mapping.ahj_permit_type.type for mapping in ahj_permit_mappings]
+            data["permit_required"] = permits
             
             # create entry in api_usage after successfull api hit
             try:

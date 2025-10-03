@@ -6,6 +6,9 @@ from app.models import (
     AHJElectricalRequirement,
     AHJStructuralSetbackRequirement,
     AHJGroundMountRequirement,
+    AHJSafetyInstructions,
+    AHJLabel, 
+    AHJEnvironmentalData
 )
 
 class AHJSolarRequirementSerializer(serializers.ModelSerializer):
@@ -39,3 +42,20 @@ class AHJDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = AHJ
         exclude = ('created_at', 'updated_at', 'created_by', 'updated_by')
+
+class AHJSafetyInstructionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AHJSafetyInstructions
+        exclude = ('id', 'ahj')
+
+class AHJLabelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AHJLabel
+        exclude = ('id', 'ahj')
+
+
+class AHJEnvironmentalDataSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = AHJEnvironmentalData
+        exclude = ('id',)
