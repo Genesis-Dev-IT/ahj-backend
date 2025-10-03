@@ -339,4 +339,40 @@ class AHJStructuralRequirement(models.Model):
     def __str__(self):
         return f"Structural Requirement for {self.ahj.name} (ID: {self.id})"
 
+   
+class AHJRoofMountRequirement(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="roof_mount_requirements")
+    permitted_zones = models.CharField(max_length=255, null=True, blank=True)
+    #   height_restriction: {
+    maximum_above_roof = models.CharField(max_length=255, null=True, blank=True)
+    included_in_building_height = models.BooleanField(default=False)
+    #   },
+    #   installation_requirements: {
+    roof_boundary_setback = models.CharField(max_length=255, null=True, blank=True)
+    manual_shutoff_required = models.BooleanField(default=False)
+    shutoff_location = models.CharField(max_length=255, null=True, blank=True)
+    nec_placard_required = models.BooleanField(default=False)
+    placard_location = models.CharField(max_length=255, null=True, blank=True)
+    #   }
+    #     #   restrictions: {
+    front_yard = models.CharField(max_length=255, null=True, blank=True)
+    #   }
+
+    created_at = models.BigIntegerField(default=current_timestamp)
+    updated_at = models.BigIntegerField(default=current_timestamp)
+
+    class Meta:
+        db_table = "ahj_roof_mount_requirement"
+        unique_together = ("ahj",)
+
+    def save(self, *args, **kwargs):
+        self.updated_at = current_timestamp()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Roof Mount Requirement for {self.ahj.name} (ID: {self.id})"
+
+
+
     

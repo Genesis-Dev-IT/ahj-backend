@@ -6,7 +6,7 @@ from django.db import transaction
 from app.models import (
         AHJ, AHJElectricalRequirement, AHJGroundMountRequirement, 
         AHJSolarRequirement, AHJRemark, AHJStructuralSetbackRequirement, ApiUsage, State, StateSpecificInformation, AHJLabel, AHJSafetyInstructions, AHJCodeMapping, 
-        AHJEnvironmentalData, PermitType, AHJPermitMapping, AHJStructuralRequirement
+        AHJEnvironmentalData, PermitType, AHJPermitMapping, AHJStructuralRequirement, AHJRoofMountRequirement
     )
 from rest_framework.parsers import JSONParser
 from rest_framework import status
@@ -15,7 +15,7 @@ from django.http import Http404
 from app.serializer import (
     AHJDetailSerializer, AHJSolarRequirementSerializer, AHJRemarkSerializer, AHJElectricalRequirementSerializer, AHJGroundMountRequirementSerializer,
     AHJStructuralSetbackRequirementSerializer, StateSpecificInformationSerializer, AHJSafetyInstructionsSerializer, AHJLabelSerializer, AHJSafetyInstructionsSerializer,
-    ReferenceCodesSerializer, AHJEnvironmentalDataSerializer, PermitTypeSerializer, AHJStructuralRequirementSerializer
+    ReferenceCodesSerializer, AHJEnvironmentalDataSerializer, PermitTypeSerializer, AHJStructuralRequirementSerializer, AHJRoofMountRequirementSerializer
 )
 from app.mixins import ApiTokenValidityCheckMixin
 import logging
@@ -55,6 +55,7 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 "ahj_structural_requirement":None,
                 "ahj_structural_setback_requirement":None,
                 "ahj_ground_mount_requirement":None,
+                "ahj_roof_mount_requirement": None,
                 "state_specific_ic_codes": None,
                 "ahj_label": None,
                 "ahj_safety_instructions":None,
@@ -125,6 +126,11 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
             if ahj_structural_requirement:
                 ahj_structural_requirement_serializer = AHJStructuralRequirementSerializer(ahj_structural_requirement)
                 data["ahj_structural_requirement"] = ahj_structural_requirement_serializer.data
+            
+            ahj_roof_mount_requirement = AHJRoofMountRequirement.objects.filter(ahj_id=id).first()
+            if ahj_roof_mount_requirement:
+                ahj_roof_mount_requirement_serializer = AHJRoofMountRequirementSerializer(ahj_roof_mount_requirement)
+                data["ahj_roof_mount_requirement"] = ahj_roof_mount_requirement_serializer.data
             
             # create entry in api_usage after successfull api hit
             try:

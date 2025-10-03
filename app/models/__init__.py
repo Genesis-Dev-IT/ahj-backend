@@ -2,7 +2,8 @@ from .user import User
 
 from .ahj import (
     AHJ, AHJSolarRequirement, AHJRemark, AHJElectricalRequirement, AHJStructuralSetbackRequirement, 
-    AHJGroundMountRequirement, ZipcodeAHJMapping, AHJLabel, AHJSafetyInstructions, AHJCodeMapping, AHJEnvironmentalData, AHJPermitMapping, AHJStructuralRequirement
+    AHJGroundMountRequirement, ZipcodeAHJMapping, AHJLabel, AHJSafetyInstructions, AHJCodeMapping, AHJEnvironmentalData, AHJPermitMapping, AHJStructuralRequirement,
+    AHJRoofMountRequirement
     )
 
 from .utility import(
