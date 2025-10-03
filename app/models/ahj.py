@@ -95,7 +95,7 @@ class AHJElectricalRequirement(models.Model):
 
     # New fields
     one_line_requirement = models.CharField(max_length=50, null=True, blank=True, help_text="One line / three line requirement for residential or commercial property.")
-    datasheets = models.URLField(null=True, blank=True, help_text="Link to datasheet.")
+    data_sheets = models.CharField(max_length=255, null=True)
     conductor_sizing_and_ocp = models.TextField(null=True, blank=True, help_text="Conductor sizing and overcurrent protection.")
 
     # Rapid shutdown
