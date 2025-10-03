@@ -310,3 +310,30 @@ class AHJEnvironmentalData(models.Model):
 
     def __str__(self):
         return f"Environmental Data for {self.ahj}"
+    
+
+class AHJStructuralRequirement(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="structural_requirements")
+    flat_roof = models.BooleanField(default=False, help_text="Is the roof flat?")
+    roof_condition = models.CharField(max_length=255, null=True, blank=True, help_text="Condition of the roof (e.g., good, needs repair, unknown)")
+    structural_stamp_by_contractor = models.BooleanField(default=False, help_text="Is a structural stamp required by a certified contractor?")
+    dead_load_requirement = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Dead load requirement in psf (pounds per square foot)")
+    property_lines = models.TextField(null=True, blank=True, help_text="Details about property lines relevant to structural requirements")
+    obstructions = models.TextField(null=True, blank=True, help_text="Notes on obstructions affecting structural requirements")
+
+    created_at = models.BigIntegerField(default=current_timestamp)
+    updated_at = models.BigIntegerField(default=current_timestamp)
+
+    class Meta:
+        db_table = "ahj_structural_requirement"
+        unique_together = ("ahj",)
+
+    def save(self, *args, **kwargs):
+        self.updated_at = current_timestamp()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Structural Requirement for {self.ahj.name} (ID: {self.id})"
+
+    

@@ -6,7 +6,7 @@ from django.db import transaction
 from app.models import (
         AHJ, AHJElectricalRequirement, AHJGroundMountRequirement, 
         AHJSolarRequirement, AHJRemark, AHJStructuralSetbackRequirement, ApiUsage, State, StateSpecificInformation, AHJLabel, AHJSafetyInstructions, AHJCodeMapping, 
-        AHJEnvironmentalData, PermitType, AHJPermitMapping
+        AHJEnvironmentalData, PermitType, AHJPermitMapping, AHJStructuralRequirement
     )
 from rest_framework.parsers import JSONParser
 from rest_framework import status
@@ -15,7 +15,7 @@ from django.http import Http404
 from app.serializer import (
     AHJDetailSerializer, AHJSolarRequirementSerializer, AHJRemarkSerializer, AHJElectricalRequirementSerializer, AHJGroundMountRequirementSerializer,
     AHJStructuralSetbackRequirementSerializer, StateSpecificInformationSerializer, AHJSafetyInstructionsSerializer, AHJLabelSerializer, AHJSafetyInstructionsSerializer,
-    ReferenceCodesSerializer, AHJEnvironmentalDataSerializer, PermitTypeSerializer
+    ReferenceCodesSerializer, AHJEnvironmentalDataSerializer, PermitTypeSerializer, AHJStructuralRequirementSerializer
 )
 from app.mixins import ApiTokenValidityCheckMixin
 import logging
@@ -52,6 +52,7 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 "ahj":ahj_serializer.data,
                 "ahj_solar_requirement":None,
                 "ahj_electrical_requirement":None,
+                "ahj_structural_requirement":None,
                 "ahj_structural_setback_requirement":None,
                 "ahj_ground_mount_requirement":None,
                 "state_specific_ic_codes": None,
@@ -119,6 +120,11 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
             
             permits = [mapping.ahj_permit_type.type for mapping in ahj_permit_mappings]
             data["permit_required"] = permits
+
+            ahj_structural_requirement = AHJStructuralRequirement.objects.filter(ahj_id=id).first()
+            if ahj_structural_requirement:
+                ahj_structural_requirement_serializer = AHJStructuralRequirementSerializer(ahj_structural_requirement)
+                data["ahj_structural_requirement"] = ahj_structural_requirement_serializer.data
             
             # create entry in api_usage after successfull api hit
             try:
