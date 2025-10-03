@@ -372,6 +372,33 @@ class AHJRoofMountRequirement(models.Model):
 
     def __str__(self):
         return f"Roof Mount Requirement for {self.ahj.name} (ID: {self.id})"
+    
+
+class AHJSolarFireRequirements(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="solar_fire_requirement")
+    fire_access = models.BooleanField(default=False, help_text="Is fire access required?")
+    other_ahj_specific_req = models.TextField(null=True, blank=True, help_text="Other AHJ-specific fire-related requirements")
+    evacuation_plan = models.BooleanField(default=False, help_text="Is evacuation plan required?")
+    rapid_shutdown_information = models.BooleanField(default=False, help_text="Is rapid shutdown information required?")
+    fire_code_setbacks = models.BooleanField(default=False, help_text="Are fire code setbacks required?")
+    location_of_disconnects = models.BooleanField(default=False, help_text="Location of disconnects required?")
+    fire_resistant_materials = models.BooleanField(default=False, help_text="Fire-resistant materials compliance required?")
+    battery_storage_compliance = models.BooleanField(default=False, help_text="Battery storage systems compliance required?")
+
+    created_at = models.BigIntegerField(default=current_timestamp)
+    updated_at = models.BigIntegerField(default=current_timestamp)
+
+    class Meta:
+        db_table = "ahj_solar_fire_requirement"
+        unique_together = ("ahj",)
+
+    def save(self, *args, **kwargs):
+        self.updated_at = current_timestamp()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Solar Fire Requirement for {self.ahj.name} (ID: {self.id})"
 
 
 
