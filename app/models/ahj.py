@@ -82,31 +82,6 @@ class AHJRemark(models.Model):
     def __str__(self):
         return f"Remark for AHJ (ID: {self.id}): {self.remark}"
 
-
-class AHJSpecificRequirement(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE)
-    max_panel_system_weight = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    loading_calculation_threshold = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)  #per square foot
-    wind_speed = models.DecimalField( max_digits=6, decimal_places=2, null=True, blank=True)
-    exposure_category = models.CharField(max_length=2, null=True, blank=True, help_text="ASCE 7 exposure category")
-    snow_load = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Ground snow load in psf")
-    ground_mount_allowed = models.BooleanField(default=False, help_text="Whether AHJ allows ground-mount systems")
-    created_at = models.BigIntegerField(default=current_timestamp)
-    updated_at = models.BigIntegerField(default=current_timestamp)
-
-    class Meta:
-        db_table = "ahj_specific_requirement"
-
-    def save(self, *args, **kwargs):
-        """Update 'updated_at' every time the object is saved."""
-        self.updated_at = current_timestamp()
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"Specific Requirement for {self.ahj.name} (ID: {self.id})"
-    
-
 class AHJElectricalRequirement(models.Model):
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE)

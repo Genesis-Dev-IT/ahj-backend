@@ -3,7 +3,6 @@ from app.models import (
     AHJ,
     AHJRequirement,
     AHJRemark,
-    AHJSpecificRequirement,
     AHJElectricalRequirement,
     AHJStructuralSetbackRequirement,
     AHJGroundMountRequirement,
@@ -19,11 +18,6 @@ class AHJRemarkSerializer(serializers.ModelSerializer):
     class Meta:
         model = AHJRemark
         exclude = ('ahj', 'updated_at', 'updated_by','created_by')
-
-class AHJSpecificRequirementSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AHJSpecificRequirement
-        exclude = ('id', 'ahj', 'created_at', 'updated_at')
 
 class AHJElectricalRequirementSerializer(serializers.ModelSerializer):
     class Meta:

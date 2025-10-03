@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.db import transaction
 from app.models import (
         AHJ, AHJElectricalRequirement, AHJGroundMountRequirement, 
-        AHJRequirement, AHJRemark, AHJSpecificRequirement, AHJStructuralSetbackRequirement, ApiUsage, State, StateSpecificInformation
+        AHJRequirement, AHJRemark, AHJStructuralSetbackRequirement, ApiUsage, State, StateSpecificInformation
     )
 from rest_framework.parsers import JSONParser
 from rest_framework import status
@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 from app.serializer import (
     AHJDetailSerializer, AHJRequirementSerializer, AHJRemarkSerializer, AHJElectricalRequirementSerializer, AHJGroundMountRequirementSerializer,
-    AHJSpecificRequirementSerializer, AHJStructuralSetbackRequirementSerializer, StateSpecificInformationSerializer
+    AHJStructuralSetbackRequirementSerializer, StateSpecificInformationSerializer
 )
 from app.mixins import ApiTokenValidityCheckMixin
 import logging
@@ -49,7 +49,6 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
             data={
                 "ahj":ahj_serializer.data,
                 "ahj_requirement":None,
-                "ahj_specific_requirement":None,
                 "ahj_electrical_requirement":None,
                 "ahj_structural_setback_requirement":None,
                 "ahj_ground_mount_requirement":None,
@@ -72,11 +71,6 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 
                 ahj_requirement_serializer = AHJRequirementSerializer(ahj_requirement)
                 data["ahj_requirement"] = ahj_requirement_serializer.data
-
-            ahj_specific_requirement = AHJSpecificRequirement.objects.filter(ahj_id=id).first()
-            if ahj_specific_requirement:
-                ahj_specific_requirement_serializer = AHJSpecificRequirementSerializer(ahj_specific_requirement)
-                data["ahj_specific_requirement"]=ahj_specific_requirement_serializer.data
             
             ahj_electrical_requirement = AHJElectricalRequirement.objects.filter(ahj_id=id).first()
             if ahj_electrical_requirement:
