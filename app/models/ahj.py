@@ -397,7 +397,67 @@ class AHJSolarFireRequirements(models.Model):
 
     def __str__(self):
         return f"Solar Fire Requirement for {self.ahj.name} (ID: {self.id})"
+class AHJPermits(models.Model):
+    ZONING_OPTIONS = [
+        ("ground_mount", "Ground Mount"),
+        ("roof_mount", "Roof Mount"),
+    ]
 
+    STAMP_TYPE = [
+        ("wet", "Wet"),
+        ("digital", "Digital"),
+    ]
+
+    SUBMISSION_METHOD = [
+        ("hard_copy", "Hard Copy"),
+        ("online", "Online"),
+    ]
+
+    id = models.BigAutoField(primary_key=True)
+    ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="permits")
+
+    # Permit forms + remarks
+    construction_form = models.BooleanField(default=False)
+    construction_form_remarks = models.TextField(null=True, blank=True)
+
+    electrical_form = models.BooleanField(default=False)
+    electrical_form_remarks = models.TextField(null=True, blank=True)
+
+    building_form = models.BooleanField(default=False)
+    building_form_remarks = models.TextField(null=True, blank=True)
+
+    fire_form = models.BooleanField(default=False)
+    fire_form_remarks = models.TextField(null=True, blank=True)
+
+    # Zoning applicability
+    zoning = models.CharField(max_length=50, choices=ZONING_OPTIONS, null=True,blank=True,help_text="Applicable zoning type (Ground mount or Roof mount)")
+   
+    # Stamping
+    structural_stamp_on_planset = models.CharField(max_length=10, choices=STAMP_TYPE,null=True, blank=True, help_text="Type of structural stamp on planset (Wet/Digital)")
+    electrical_stamp_on_planset = models.CharField(max_length=10, choices=STAMP_TYPE, null=True, blank=True, help_text="Type of electrical stamp on planset (Wet/Digital)")
+
+    # Submission method
+    form_of_submission = models.CharField(max_length=20, choices=SUBMISSION_METHOD, null=True, blank=True,help_text="Form of submission (Hard copy / Online)" )
+
+    # Timestamps
+    created_at = models.BigIntegerField(default=current_timestamp)
+    updated_at = models.BigIntegerField(default=current_timestamp)
+
+    class Meta:
+        db_table = "ahj_permits"
+        constraints = [
+            models.CheckConstraint(check=Q(zoning__in=["ground_mount", "roof_mount"]) | Q(zoning__isnull=True), name="valid_zoning_type"),
+            models.CheckConstraint(check=Q(structural_stamp_on_planset__in=["wet", "digital"]) | Q(structural_stamp_on_planset__isnull=True), name="valid_structural_stamp"),
+            models.CheckConstraint(check=Q(electrical_stamp_on_planset__in=["wet", "digital"]) | Q(electrical_stamp_on_planset__isnull=True), name="valid_electrical_stamp"),
+            models.CheckConstraint(check=Q(form_of_submission__in=["hard_copy", "online"]) | Q(form_of_submission__isnull=True), name="valid_submission_method"),
+        ]
+
+    def save(self, *args, **kwargs):
+        self.updated_at = current_timestamp()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Permits for {self.ahj.name} (ID: {self.id})"
 
 
     

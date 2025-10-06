@@ -6,7 +6,7 @@ from django.db import transaction
 from app.models import (
         AHJ, AHJElectricalRequirement, AHJGroundMountRequirement, 
         AHJSolarRequirement, AHJRemark, AHJSetbackRequirement, ApiUsage, State, StateSpecificInformation, AHJLabel, AHJSafetyInstructions, AHJCodeMapping, 
-        AHJEnvironmentalData, PermitType, AHJPermitMapping, AHJStructuralRequirement, AHJRoofMountRequirement, AHJSolarFireRequirements
+        AHJEnvironmentalData, PermitType, AHJPermitMapping, AHJStructuralRequirement, AHJRoofMountRequirement, AHJSolarFireRequirements, AHJPermits
     )
 from rest_framework.parsers import JSONParser
 from rest_framework import status
@@ -16,7 +16,7 @@ from app.serializer import (
     AHJDetailSerializer, AHJSolarRequirementSerializer, AHJRemarkSerializer, AHJElectricalRequirementSerializer, AHJGroundMountRequirementSerializer,
     AHJSetbackRequirementSerializer, StateSpecificInformationSerializer, AHJSafetyInstructionsSerializer, AHJLabelSerializer, AHJSafetyInstructionsSerializer,
     ReferenceCodesSerializer, AHJEnvironmentalDataSerializer, PermitTypeSerializer, AHJStructuralRequirementSerializer, AHJRoofMountRequirementSerializer, 
-    AHJSolarFireRequirementsSerializer
+    AHJSolarFireRequirementsSerializer, AHJPermitsSerializer
 )
 from app.mixins import ApiTokenValidityCheckMixin
 import logging
@@ -64,6 +64,7 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 "ahj_label": None,
                 "reference_codes": [],
                 "permit_required": None,
+                "ahj_permits": None,
                 # "remarks": []
             }
             ahj_solar_requirement = AHJSolarRequirement.objects.filter(ahj_id=id).first()
@@ -138,6 +139,12 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
             if ahj_solar_fire_requirement:
                 ahj_environmental_data_serializer = AHJSolarFireRequirementsSerializer(ahj_solar_fire_requirement)
                 data["ahj_solar_fire_requirement"] = ahj_environmental_data_serializer.data
+
+            ahj_permits = AHJPermits.objects.filter(ahj_id=id).first()
+            if ahj_permits:
+                ahj_permits_serializer = AHJPermitsSerializer(ahj_permits)
+                data["ahj_permits"] = ahj_permits_serializer.data
+
 
             # create entry in api_usage after successfull api hit
             try:

@@ -11,7 +11,8 @@ from app.models import (
     AHJEnvironmentalData,
     AHJStructuralRequirement,
     AHJRoofMountRequirement,
-    AHJSolarFireRequirements
+    AHJSolarFireRequirements,
+    AHJPermits
 )
 
 class AHJSolarRequirementSerializer(serializers.ModelSerializer):
@@ -104,4 +105,11 @@ class AHJSolarFireRequirementsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AHJSolarFireRequirements
+        exclude = ('id','ahj', 'created_at', 'updated_at', )
+
+
+class AHJPermitsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = AHJPermits
         exclude = ('id','ahj', 'created_at', 'updated_at', )
