@@ -88,24 +88,31 @@ class AHJRemark(models.Model):
 class AHJElectricalRequirement(models.Model):
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE)
+
+    # Engineer stamping
     stamp_required = models.BooleanField(default=False, help_text="Does electrical work require an engineer stamp?")
     ee_stamp_for_main_breaker_derate = models.BooleanField(default=False)
     ee_stamp_for_main_breaker_derate_remarks = models.TextField(null=True, blank=True)
+
+    # PV meter
     pv_meter_required = models.BooleanField(default=False)
     pv_meter_required_remarks = models.TextField(null=True, blank=True)
-    ac_disconnect_type = models.CharField(max_length=20, null=True, blank=True)  # fused, non-fused 
+
+    # AC Disconnects
+    ac_disconnect_type = models.CharField(max_length=20, null=True, blank=True, help_text="fused / non-fused")
     ac_disconnect_type_remarks = models.TextField(null=True, blank=True)
 
-    # New fields
+    # Drawings & datasheets
     one_line_requirement = models.CharField(max_length=50, null=True, blank=True, help_text="One line / three line requirement for residential or commercial property.")
-    data_sheets = models.CharField(max_length=255, null=True)
+    data_sheets = models.CharField(max_length=255, null=True, blank=True)
     conductor_sizing_and_ocp = models.TextField(null=True, blank=True, help_text="Conductor sizing and overcurrent protection.")
+    conductor_material = models.TextField(null=True, blank=True, help_text="Conductor material.")
 
-    # Rapid shutdown
+    # Rapid Shutdown
     is_rsd_needed = models.BooleanField(default=False)
     rsd_requirement = models.TextField(null=True, blank=True, help_text="RSD should be next to inverter (AHJ specific requirement).")
 
-    # Disconnects
+    # Disconnect requirements
     is_disconnect_required = models.BooleanField(default=False)
     disconnect_remarks = models.TextField(null=True, blank=True, help_text="Where disconnect is required (AHJ specific requirement).")
 
@@ -113,14 +120,15 @@ class AHJElectricalRequirement(models.Model):
     is_grounding_and_bonding_required = models.BooleanField(default=False)
     grounding_and_bonding_remarks = models.TextField(null=True, blank=True)
 
+    # Panel, labeling & calculations
     electrical_panel_connection = models.TextField(null=True, blank=True, help_text="Electrical panel connection (The 120% Rule).")
     labeling = models.TextField(null=True, blank=True)
-
-    # Loading calculation
     is_loading_calculation_required = models.BooleanField(default=False)
     loading_calculation_remarks = models.TextField(null=True, blank=True)
 
+    # Misc
     wire_size_requirements = models.TextField(null=True, blank=True)
+    production_meter_location = models.TextField(null=True, blank=True)
     production_meter_requirements = models.TextField(null=True, blank=True)
     power_line_filter_requirement = models.TextField(null=True, blank=True)
     recommended_ic = models.TextField(null=True, blank=True)
@@ -138,23 +146,27 @@ class AHJElectricalRequirement(models.Model):
     main_service_panel = models.TextField(null=True, blank=True)
     spd_device = models.TextField(null=True, blank=True)
     grounding_electrode_conductor = models.TextField(null=True, blank=True)
+    busbar_rating = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Main service panel busbar rating in amperes")
 
+    # Notes
     ahj_specific_notes = models.TextField(null=True, blank=True)
-
-    # Placard
     placard_requirement_remarks = models.TextField(null=True, blank=True)
+    electrical_notes = models.TextField(null=True, blank=True)
 
+    # ESS (Energy Storage Systems)
+    ess_disconect = models.BooleanField(default=False)
     ess_specific_requirements = models.TextField(null=True, blank=True)
     e_stop_button_requirement = models.TextField(null=True, blank=True)
 
-    # 3-line diagram
+    # 3-Line Diagram
     three_line_diagram_required = models.BooleanField(default=False)
     three_line_diagram_remarks = models.TextField(null=True, blank=True)
 
+    # Contractor info
     certified_electrical_contractor = models.BooleanField(default=False)
-
     string_details = models.TextField(null=True, blank=True)
 
+    # Rule 120%
     rule_120_percent_required = models.BooleanField(default=False)
 
     # Timestamps
@@ -165,13 +177,12 @@ class AHJElectricalRequirement(models.Model):
         db_table = "ahj_electrical_requirement"
         constraints = [
             models.CheckConstraint(
-                check=Q(ac_disconnect_type__in=["fused", "non-fused"]),
+                check=Q(ac_disconnect_type__in=["fused", "non-fused"]) | Q(ac_disconnect_type__isnull=True),
                 name="ac_disconnect_type_valid",
             ),
         ]
 
     def save(self, *args, **kwargs):
-        """Update 'updated_at' every time the object is saved."""
         self.updated_at = current_timestamp()
         super().save(*args, **kwargs)
 
