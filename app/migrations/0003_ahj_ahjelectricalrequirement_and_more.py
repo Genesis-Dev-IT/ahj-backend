@@ -136,10 +136,6 @@ class Migration(migrations.Migration):
             model_name='ahjelectricalrequirement',
             constraint=models.CheckConstraint(condition=models.Q(('ac_disconnect_type__in', ['fused', 'non-fused'])), name='ac_disconnect_type_valid'),
         ),
-        migrations.AddConstraint(
-            model_name='ahjgroundmountrequirement',
-            constraint=models.CheckConstraint(condition=models.Q(('soil_class__in', ['clay', 'gravel', 'rock'])), name='soil_class_type_valid'),
-        ),
         migrations.AddIndex(
             model_name='zipcodeahjmapping',
             index=models.Index(fields=['zipcode', 'ahj'], name='zipcode_ahj_zipcode_e4b09c_idx'),

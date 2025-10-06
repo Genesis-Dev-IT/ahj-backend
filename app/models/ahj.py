@@ -208,12 +208,9 @@ class AHJGroundMountRequirement(models.Model):
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE)
     
-    soil_class = models.CharField(null=True, max_length=20, help_text="Soil classification")  #clay, gravel, rock
-    freeze_depth = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Maximum freeze depth in feet")
-    thaw_depth = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Depth to which soil thaws in feet")
-    setback_front = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Front yard setback in feet")
-    setback_back = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Back yard setback in feet")
-    setback_side = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Side yard setback in feet")
+    setback = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Minimum required setback distance in feet")
+    setback_remarks = models.TextField(null=True, blank=True, help_text="Additional notes or remarks about setbacks")
+    location_of_ground_mount = models.CharField(max_length=255, null=True, blank=True, help_text="Location description or zoning area for ground mount installation")
     gm_max_height = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Maximum height of ground-mounted solar in feet")
 
     created_at = models.BigIntegerField(default=current_timestamp)
@@ -221,12 +218,6 @@ class AHJGroundMountRequirement(models.Model):
 
     class Meta:
         db_table = "ahj_ground_mount_requirement"
-        constraints = [
-            models.CheckConstraint(
-                check=Q(soil_class__in=["clay", "gravel", "rock"]),
-                name="soil_class_type_valid",
-            ),
-        ]
 
     def save(self, *args, **kwargs):
         """Update 'updated_at' every time the object is saved."""
