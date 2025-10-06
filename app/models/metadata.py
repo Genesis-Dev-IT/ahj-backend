@@ -6,6 +6,9 @@ class ReferenceCodes(models.Model):
     id = models.BigAutoField(primary_key=True)
     type = models.CharField(max_length=50, db_index=True)
     code_name = models.CharField(max_length=100, blank=True, null=True)
+    building_code = models.CharField(max_length=100, blank=True, null=True)
+    nec_code = models.CharField(max_length=100, blank=True, null=True)
+    nfpa_code = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(null=True, blank=True)
 
     class Meta:
