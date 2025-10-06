@@ -56,7 +56,7 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 "ahj_structural_requirement":None,
                 "ahj_setback_requirement":None,
                 "ahj_ground_mount_requirement":None,
-                "ahj_roof_mount_requirement": None,
+                # "ahj_roof_mount_requirement": None,
                 "ahj_solar_fire_requirement": None,
                 "state_specific_ic_codes": None,
                 "ahj_safety_instructions":None,
@@ -129,10 +129,10 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 ahj_structural_requirement_serializer = AHJStructuralRequirementSerializer(ahj_structural_requirement)
                 data["ahj_structural_requirement"] = ahj_structural_requirement_serializer.data
             
-            ahj_roof_mount_requirement = AHJRoofMountRequirement.objects.filter(ahj_id=id).first()
-            if ahj_roof_mount_requirement:
-                ahj_roof_mount_requirement_serializer = AHJRoofMountRequirementSerializer(ahj_roof_mount_requirement)
-                data["ahj_roof_mount_requirement"] = ahj_roof_mount_requirement_serializer.data
+            # ahj_roof_mount_requirement = AHJRoofMountRequirement.objects.filter(ahj_id=id).first()
+            # if ahj_roof_mount_requirement:
+            #     ahj_roof_mount_requirement_serializer = AHJRoofMountRequirementSerializer(ahj_roof_mount_requirement)
+            #     data["ahj_roof_mount_requirement"] = ahj_roof_mount_requirement_serializer.data
 
             ahj_solar_fire_requirement = AHJSolarFireRequirements.objects.filter(ahj_id=id).first()
             if ahj_solar_fire_requirement:
