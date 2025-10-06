@@ -180,15 +180,10 @@ class AHJElectricalRequirement(models.Model):
 
 
 class AHJSetbackRequirement(models.Model):
-    SEAL_TYPE = [
-         ("wet", "Wet"),
-        ("digital", "Digital"),
-    ]
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE)
-    stamp_required = models.BooleanField(default=True, editable=False, help_text="Does structural work require an engineer stamp?")
-    seal_type = models.CharField(max_length=10, choices=SEAL_TYPE, null=True, blank=True, help_text="Type of seal required (Wet or Digital)" )
     fire_setback_distance = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Fire setback in feet (if specified)")
+    fire_setback_distance_remarks = models.TextField(blank=True, null= True)
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)
 
@@ -306,8 +301,13 @@ class AHJEnvironmentalData(models.Model):
     
 
 class AHJStructuralRequirement(models.Model):
+    SEAL_TYPE = [
+         ("wet", "Wet"),
+        ("digital", "Digital"),
+    ]
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="structural_requirements")
+    seal_type = models.CharField(max_length=10, choices=SEAL_TYPE, null=True, blank=True, help_text="Type of seal required (Wet or Digital)" )
     flat_roof = models.BooleanField(default=False, help_text="Is the roof flat?")
     roof_condition = models.CharField(max_length=255, null=True, blank=True, help_text="Condition of the roof (e.g., good, needs repair, unknown)")
     structural_stamp_by_contractor = models.BooleanField(default=False, help_text="Is a structural stamp required by a certified contractor?")
