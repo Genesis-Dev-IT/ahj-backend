@@ -29,7 +29,13 @@ urlpatterns = [
     path("v1/ahj-search-history", AHJSearchHistoryView.as_view(), name="ahj-search-history"),
     path("v1/utility-search-history", UtilitySearchHistoryView.as_view(), name="utility-search-history"),
     path('v1/verticals', Verticals.as_view(), name='verticals'),
-     path("v1/reference-codes/", ReferenceCodesView.as_view(), name="reference_codes"),
+    
+    path("v1/reference-codes/", ReferenceCodesView.as_view(), name="reference_codes"),
+    path("v1/reference-codes/<int:id>/", ReferenceCodesView.as_view(), name="reference_code_detail"),
+    
     path("v1/permit-types/", PermitTypeView.as_view(), name="permit_types"),
+    path("v1/permit-types/<int:id>/", PermitTypeView.as_view(), name="permit_type_detail"),
+
     path("v1/standard-labels/", StandardLabelsView.as_view(), name="standard_labels"),
+    path("v1/standard-labels/<int:id>/", StandardLabelsView.as_view(), name="standard_label_detail"),
 ]

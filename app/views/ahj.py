@@ -59,20 +59,20 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 "ahj_roof_mount_requirement": None,
                 "ahj_solar_fire_requirement": None,
                 "state_specific_ic_codes": None,
-                "ahj_label": None,
                 "ahj_safety_instructions":None,
                 "ahj_environmental_data":None,
-                "codes": [],
+                "ahj_label": None,
+                "reference_codes": [],
                 "permit_required": None,
-                "remarks": []
+                # "remarks": []
             }
             ahj_solar_requirement = AHJSolarRequirement.objects.filter(ahj_id=id).first()
             state = State.objects.get(code=ahj.state_code)
             state_specific_ic_codes = state.specific_information.all()
 
-            ahj_remarks = AHJRemark.objects.filter(ahj_id=ahj.id).all()
-            ahj_remarks_serializer = AHJRemarkSerializer(ahj_remarks, many=True)
-            data["remarks"] = ahj_remarks_serializer.data
+            # ahj_remarks = AHJRemark.objects.filter(ahj_id=ahj.id).all()
+            # ahj_remarks_serializer = AHJRemarkSerializer(ahj_remarks, many=True)
+            # data["remarks"] = ahj_remarks_serializer.data
 
             if state_specific_ic_codes:
                 state_specific_ic_codes_serializer = StateSpecificInformationSerializer(state_specific_ic_codes, many=True)
@@ -109,9 +109,9 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
 
             ahj_code_mappings = AHJCodeMapping.objects.filter(ahj_id = id).all()
             
-            codes = [mapping.code for mapping in ahj_code_mappings]
-            code_serializer = ReferenceCodesSerializer(codes, many=True)
-            data["codes"] = code_serializer.data
+            reference_codes = [mapping.code for mapping in ahj_code_mappings]
+            code_serializer = ReferenceCodesSerializer(reference_codes, many=True)
+            data["reference_codes"] = code_serializer.data
 
             ahj_environmental_data = AHJEnvironmentalData.objects.filter(ahj_id=id).first()
             if ahj_environmental_data:
@@ -138,7 +138,7 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
             if ahj_solar_fire_requirement:
                 ahj_environmental_data_serializer = AHJSolarFireRequirementsSerializer(ahj_solar_fire_requirement)
                 data["ahj_solar_fire_requirement"] = ahj_environmental_data_serializer.data
-            
+
             # create entry in api_usage after successfull api hit
             try:
                 ApiUsage.objects.create(
