@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.db import transaction
 from app.models import (
         AHJ, AHJElectricalRequirement, AHJGroundMountRequirement, 
-        AHJSolarRequirement, AHJRemark, AHJStructuralSetbackRequirement, ApiUsage, State, StateSpecificInformation, AHJLabel, AHJSafetyInstructions, AHJCodeMapping, 
+        AHJSolarRequirement, AHJRemark, AHJSetbackRequirement, ApiUsage, State, StateSpecificInformation, AHJLabel, AHJSafetyInstructions, AHJCodeMapping, 
         AHJEnvironmentalData, PermitType, AHJPermitMapping, AHJStructuralRequirement, AHJRoofMountRequirement, AHJSolarFireRequirements
     )
 from rest_framework.parsers import JSONParser
@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 from app.serializer import (
     AHJDetailSerializer, AHJSolarRequirementSerializer, AHJRemarkSerializer, AHJElectricalRequirementSerializer, AHJGroundMountRequirementSerializer,
-    AHJStructuralSetbackRequirementSerializer, StateSpecificInformationSerializer, AHJSafetyInstructionsSerializer, AHJLabelSerializer, AHJSafetyInstructionsSerializer,
+    AHJSetbackRequirementSerializer, StateSpecificInformationSerializer, AHJSafetyInstructionsSerializer, AHJLabelSerializer, AHJSafetyInstructionsSerializer,
     ReferenceCodesSerializer, AHJEnvironmentalDataSerializer, PermitTypeSerializer, AHJStructuralRequirementSerializer, AHJRoofMountRequirementSerializer, 
     AHJSolarFireRequirementsSerializer
 )
@@ -54,7 +54,7 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 "ahj_solar_requirement":None,
                 "ahj_electrical_requirement":None,
                 "ahj_structural_requirement":None,
-                "ahj_structural_setback_requirement":None,
+                "ahj_setback_requirement":None,
                 "ahj_ground_mount_requirement":None,
                 "ahj_roof_mount_requirement": None,
                 "ahj_solar_fire_requirement": None,
@@ -87,10 +87,10 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 ahj_electrical_requirement_serializer = AHJElectricalRequirementSerializer(ahj_electrical_requirement)
                 data["ahj_electrical_requirement"] = ahj_electrical_requirement_serializer.data
             
-            ahj_structural_setback_requirement = AHJStructuralSetbackRequirement.objects.filter(ahj_id=id).first()
-            if ahj_structural_setback_requirement:
-                ahj_structural_setback_requirement_serialzer = AHJStructuralSetbackRequirementSerializer(ahj_structural_setback_requirement)
-                data["ahj_structural_setback_requirement"] = ahj_structural_setback_requirement_serialzer.data 
+            ahj_setback_requirement = AHJSetbackRequirement.objects.filter(ahj_id=id).first()
+            if ahj_setback_requirement:
+                ahj_setback_requirement_serialzer = AHJSetbackRequirementSerializer(ahj_setback_requirement)
+                data["ahj_setback_requirement"] = ahj_setback_requirement_serialzer.data 
             
             ahj_ground_mount_requirement = AHJGroundMountRequirement.objects.filter(ahj_id=id).first()
             if ahj_ground_mount_requirement:

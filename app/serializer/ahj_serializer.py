@@ -4,7 +4,7 @@ from app.models import (
     AHJSolarRequirement,
     AHJRemark,
     AHJElectricalRequirement,
-    AHJStructuralSetbackRequirement,
+    AHJSetbackRequirement,
     AHJGroundMountRequirement,
     AHJSafetyInstructions,
     AHJLabel, 
@@ -30,9 +30,9 @@ class AHJElectricalRequirementSerializer(serializers.ModelSerializer):
         model = AHJElectricalRequirement
         exclude = ('id', 'ahj', 'created_at', 'updated_at')
 
-class AHJStructuralSetbackRequirementSerializer(serializers.ModelSerializer):
+class AHJSetbackRequirementSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AHJStructuralSetbackRequirement
+        model = AHJSetbackRequirement
         exclude = ('id', 'ahj', 'created_at', 'updated_at')
 
 class AHJGroundMountRequirementSerializer(serializers.ModelSerializer):

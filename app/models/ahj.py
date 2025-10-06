@@ -179,7 +179,7 @@ class AHJElectricalRequirement(models.Model):
         return f"Electrical Requirement for {self.ahj.name} (ID: {self.id})"
 
 
-class AHJStructuralSetbackRequirement(models.Model):
+class AHJSetbackRequirement(models.Model):
     SEAL_TYPE = [
          ("wet", "Wet"),
         ("digital", "Digital"),
@@ -189,12 +189,11 @@ class AHJStructuralSetbackRequirement(models.Model):
     stamp_required = models.BooleanField(default=True, editable=False, help_text="Does structural work require an engineer stamp?")
     seal_type = models.CharField(max_length=10, choices=SEAL_TYPE, null=True, blank=True, help_text="Type of seal required (Wet or Digital)" )
     fire_setback_distance = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Fire setback in feet (if specified)")
-    fire_setback_code_year = models.IntegerField(null=True, blank=True, help_text="Year of fire code used for determining setback") 
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)
 
     class Meta:
-        db_table = "ahj_structural_setback_requirement"
+        db_table = "ahj_setback_requirement"
 
     def save(self, *args, **kwargs):
         """Update 'updated_at' every time the object is saved."""
