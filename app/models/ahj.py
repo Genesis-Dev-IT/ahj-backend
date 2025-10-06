@@ -322,6 +322,8 @@ class AHJStructuralRequirement(models.Model):
     dead_load_requirement = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Dead load requirement in psf (pounds per square foot)")
     property_lines = models.TextField(null=True, blank=True, help_text="Details about property lines relevant to structural requirements")
     obstructions = models.TextField(null=True, blank=True, help_text="Notes on obstructions affecting structural requirements")
+    max_panel_system_weight = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Maximum panel system weight in pounds per square foot (psf)")
+    loading_calculation_threshold = models.DecimalField(max_digits=6, decimal_places=2,null=True, blank=True, help_text="Threshold load that requires structural calculations (in psf)")
 
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)
