@@ -97,10 +97,10 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 ahj_ground_mount_requirement_serializer = AHJGroundMountRequirementSerializer(ahj_ground_mount_requirement)
                 data["ahj_ground_mount_requirement"] = ahj_ground_mount_requirement_serializer.data
 
-            ahj_label = AHJLabel.objects.filter(ahj_id=id).first()
-            if ahj_label:
-                ahj_label_serializer = AHJLabelSerializer(ahj_label)
-                data["ahj_label"] = ahj_label_serializer.data
+            ahj_label = AHJLabel.objects.filter(ahj_id=id).all()
+            if ahj_label.exists():
+                data["ahj_label"] = [[label.label_name for label in ahj_label]]
+
 
             ahj_safety_instructions = AHJSafetyInstructions.objects.filter(ahj_id=id).all()
             if ahj_safety_instructions:
