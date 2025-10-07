@@ -45,7 +45,7 @@ class AHJGroundMountRequirementSerializer(serializers.ModelSerializer):
 class AHJDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = AHJ
-        exclude = ('created_at', 'updated_at', 'created_by', 'updated_by')
+        exclude = ('id', 'created_at', 'updated_at', 'created_by', 'updated_by')
 
 class AHJSafetyInstructionsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -62,7 +62,7 @@ class AHJEnvironmentalDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AHJEnvironmentalData
-        exclude = ('id',)
+        exclude = ('ahj', 'id',)
 
 
 class AHJStructuralRequirementSerializer(serializers.ModelSerializer):

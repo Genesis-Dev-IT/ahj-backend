@@ -100,7 +100,7 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
 
             ahj_label = AHJLabel.objects.filter(ahj_id=id).all()
             if ahj_label.exists():
-                data["ahj_label"] = [[label.label_name for label in ahj_label]]
+                data["ahj_label"] = [label.label_name for label in ahj_label]
 
 
             ahj_safety_instructions = AHJSafetyInstructions.objects.filter(ahj_id=id).all()
