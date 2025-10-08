@@ -102,11 +102,8 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
             if ahj_label.exists():
                 data["ahj_label"] = [label.label_name for label in ahj_label]
 
-
-            ahj_safety_instructions = AHJSafetyInstructions.objects.filter(ahj_id=id).all()
-            if ahj_safety_instructions:
-                ahj_safety_instructions_serializer = AHJSafetyInstructionsSerializer(ahj_safety_instructions, many=True)
-                data["ahj_safety_instructions"] = ahj_safety_instructions_serializer.data
+            ahj_safety_instructions = AHJSafetyInstructions.objects.filter(ahj_id=id)
+            data["ahj_safety_instructions"] = [obj.instructions for obj in ahj_safety_instructions if obj.instructions]
 
             ahj_code_mappings = AHJCodeMapping.objects.filter(ahj_id = id).all()
             
