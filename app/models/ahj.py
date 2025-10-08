@@ -116,6 +116,7 @@ class AHJElectricalRequirement(models.Model):
     ess_specific_requirements = models.TextField(null=True, blank=True)
     eld_requirement = models.BooleanField(default=False)
     eld_requirement_remarks = models.BooleanField(default=False)
+    grounding_remarks = models.TextField(null=True, blank=True)
 
     electrical_requirements_notes = models.TextField(null=True, blank=True, help_text="Electrical Requirement Notes")
 
@@ -347,7 +348,6 @@ class AHJRoofMountRequirement(models.Model):
 #         return f"Solar Fire Requirement for {self.ahj.name} (ID: {self.id})"
 
 class AHJPermits(models.Model):
-    ZONING_OPTIONS = [("ground_mount", "Ground Mount"), ("roof_mount", "Roof Mount")]
     SUBMISSION_METHOD = [("hard_copy", "Hard Copy"), ("online", "Online")]
 
     id = models.BigAutoField(primary_key=True)
@@ -362,7 +362,8 @@ class AHJPermits(models.Model):
     fire_permit = models.BooleanField(default=False)
     fire_permit_form = models.CharField(max_length=255, null=True, blank=True, help_text="Link to Fire Permit form")
 
-    zoning = models.CharField(max_length=50, choices=ZONING_OPTIONS, null=True, blank=True, help_text="Applicable zoning type (Ground mount or Roof mount)")
+    zoning = models.BooleanField(default=False)
+    zoning_remarks = models.TextField(blank=True, null=True)
     form_of_submission = models.CharField(max_length=20, choices=SUBMISSION_METHOD, null=True, blank=True, help_text="Form of submission (Hard copy / Online)")
     structural_and_electrical_stamp_on_planset = models.CharField(max_length=20, null=True, blank=True, help_text="Type of stamp on planset (Wet / Digital / Required)")
 
@@ -372,7 +373,6 @@ class AHJPermits(models.Model):
     class Meta:
         db_table = "ahj_permits"
         constraints = [
-            models.CheckConstraint(check=Q(zoning__in=["ground_mount", "roof_mount"]) | Q(zoning__isnull=True), name="valid_zoning_type"),
             models.CheckConstraint(check=Q(form_of_submission__in=["hard_copy", "online"]) | Q(form_of_submission__isnull=True), name="valid_submission_method"),
         ]
 
