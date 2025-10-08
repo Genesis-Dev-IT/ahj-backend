@@ -79,9 +79,9 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 state_specific_ic_codes_serializer = StateSpecificInformationSerializer(state_specific_ic_codes, many=True)
                 data["state_specific_ic_codes"] = [item["state_specific_ic_code"] for item in state_specific_ic_codes_serializer.data]
 
-            if ahj_solar_requirement: 
-                ahj_solar_requirement_serializer = AHJSolarRequirementSerializer(ahj_solar_requirement)
-                data["ahj_solar_requirement"] = ahj_solar_requirement_serializer.data
+            # if ahj_solar_requirement: 
+            #     ahj_solar_requirement_serializer = AHJSolarRequirementSerializer(ahj_solar_requirement)
+            #     data["ahj_solar_requirement"] = ahj_solar_requirement_serializer.data
             
             ahj_electrical_requirement = AHJElectricalRequirement.objects.filter(ahj_id=id).first()
             if ahj_electrical_requirement:

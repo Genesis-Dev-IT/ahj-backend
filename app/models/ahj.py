@@ -215,7 +215,7 @@ class AHJPermitMapping(models.Model):
 class AHJSafetyInstructions(models.Model):
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey( "AHJ", on_delete=models.CASCADE, related_name="safety_instructions")
-    instructions =  models.TextField(blank=True, default=list, help_text="List of safety instructions for AHJ")
+    instructions =  models.TextField(blank=True, null=True, help_text="List of safety instructions for AHJ")
 
     class Meta:
         db_table = "ahj_safety_instructions"
