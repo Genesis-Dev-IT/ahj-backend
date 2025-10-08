@@ -4,14 +4,12 @@ from app.models import (
     AHJSolarRequirement,
     AHJRemark,
     AHJElectricalRequirement,
-    AHJSetbackRequirement,
     AHJGroundMountRequirement,
     AHJSafetyInstructions,
     AHJLabel, 
     AHJEnvironmentalData,
     AHJStructuralRequirement,
     AHJRoofMountRequirement,
-    AHJSolarFireRequirements,
     AHJPermits
 )
 
@@ -29,12 +27,12 @@ class AHJRemarkSerializer(serializers.ModelSerializer):
 class AHJElectricalRequirementSerializer(serializers.ModelSerializer):
     class Meta:
         model = AHJElectricalRequirement
-        exclude = ('id', 'ahj', 'created_at', 'updated_at')
+        exclude = ('id', 'ahj', 'created_at', 'updated_at', 'pv_meter_required_remarks')
 
-class AHJSetbackRequirementSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AHJSetbackRequirement
-        exclude = ('id', 'ahj', 'created_at', 'updated_at')
+# class AHJSetbackRequirementSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = AHJSetbackRequirement
+#         exclude = ('id', 'ahj', 'created_at', 'updated_at')
 
 class AHJGroundMountRequirementSerializer(serializers.ModelSerializer):
     class Meta:
@@ -45,7 +43,7 @@ class AHJGroundMountRequirementSerializer(serializers.ModelSerializer):
 class AHJDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = AHJ
-        exclude = ('id', 'created_at', 'updated_at', 'created_by', 'updated_by')
+        exclude = ('id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'data_source')
 
 class AHJSafetyInstructionsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -101,11 +99,11 @@ class AHJRoofMountRequirementSerializer(serializers.ModelSerializer):
         }
     
 
-class AHJSolarFireRequirementsSerializer(serializers.ModelSerializer):
+# class AHJSolarFireRequirementsSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = AHJSolarFireRequirements
-        exclude = ('id','ahj', 'created_at', 'updated_at', )
+#     class Meta:
+#         model = AHJSolarFireRequirements
+#         exclude = ('id','ahj', 'created_at', 'updated_at', )
 
 
 class AHJPermitsSerializer(serializers.ModelSerializer):

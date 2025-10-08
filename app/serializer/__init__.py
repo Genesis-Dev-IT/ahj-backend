@@ -1,8 +1,8 @@
 from .user_serializer import UserSerializer
 from .ahj_serializer import (
     AHJDetailSerializer, AHJSolarRequirementSerializer, AHJRemarkSerializer, AHJElectricalRequirementSerializer,
-    AHJSetbackRequirementSerializer, AHJGroundMountRequirementSerializer, AHJSafetyInstructionsSerializer, AHJLabelSerializer, AHJSafetyInstructionsSerializer
-    , AHJEnvironmentalDataSerializer, AHJStructuralRequirementSerializer, AHJRoofMountRequirementSerializer, AHJSolarFireRequirementsSerializer, AHJPermitsSerializer
+    AHJGroundMountRequirementSerializer, AHJSafetyInstructionsSerializer, AHJLabelSerializer, AHJSafetyInstructionsSerializer
+    , AHJEnvironmentalDataSerializer, AHJStructuralRequirementSerializer, AHJRoofMountRequirementSerializer, AHJPermitsSerializer
 )
 
 from .utility_serializer import (

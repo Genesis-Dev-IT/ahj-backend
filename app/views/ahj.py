@@ -5,8 +5,8 @@ from django.http import JsonResponse
 from django.db import transaction
 from app.models import (
         AHJ, AHJElectricalRequirement, AHJGroundMountRequirement, 
-        AHJSolarRequirement, AHJRemark, AHJSetbackRequirement, ApiUsage, State, StateSpecificInformation, AHJLabel, AHJSafetyInstructions, AHJCodeMapping, 
-        AHJEnvironmentalData, PermitType, AHJPermitMapping, AHJStructuralRequirement, AHJRoofMountRequirement, AHJSolarFireRequirements, AHJPermits
+        AHJSolarRequirement, AHJRemark, ApiUsage, State, StateSpecificInformation, AHJLabel, AHJSafetyInstructions, AHJCodeMapping, 
+        AHJEnvironmentalData, PermitType, AHJPermitMapping, AHJStructuralRequirement, AHJRoofMountRequirement, AHJPermits
     )
 from rest_framework.parsers import JSONParser
 from rest_framework import status
@@ -14,9 +14,9 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 from app.serializer import (
     AHJDetailSerializer, AHJSolarRequirementSerializer, AHJRemarkSerializer, AHJElectricalRequirementSerializer, AHJGroundMountRequirementSerializer,
-    AHJSetbackRequirementSerializer, StateSpecificInformationSerializer, AHJSafetyInstructionsSerializer, AHJLabelSerializer, AHJSafetyInstructionsSerializer,
-    ReferenceCodesSerializer, AHJEnvironmentalDataSerializer, PermitTypeSerializer, AHJStructuralRequirementSerializer, AHJRoofMountRequirementSerializer, 
-    AHJSolarFireRequirementsSerializer, AHJPermitsSerializer
+    StateSpecificInformationSerializer, AHJSafetyInstructionsSerializer, AHJLabelSerializer, AHJSafetyInstructionsSerializer,
+    ReferenceCodesSerializer, AHJEnvironmentalDataSerializer, PermitTypeSerializer, AHJStructuralRequirementSerializer, AHJRoofMountRequirementSerializer,
+    AHJPermitsSerializer
 )
 from app.mixins import ApiTokenValidityCheckMixin
 import logging
@@ -88,10 +88,10 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 ahj_electrical_requirement_serializer = AHJElectricalRequirementSerializer(ahj_electrical_requirement)
                 data["ahj_electrical_requirement"] = ahj_electrical_requirement_serializer.data
             
-            ahj_setback_requirement = AHJSetbackRequirement.objects.filter(ahj_id=id).first()
-            if ahj_setback_requirement:
-                ahj_setback_requirement_serialzer = AHJSetbackRequirementSerializer(ahj_setback_requirement)
-                data["ahj_setback_requirement"] = ahj_setback_requirement_serialzer.data 
+            # ahj_setback_requirement = AHJSetbackRequirement.objects.filter(ahj_id=id).first()
+            # if ahj_setback_requirement:
+            #     ahj_setback_requirement_serialzer = AHJSetbackRequirementSerializer(ahj_setback_requirement)
+            #     data["ahj_setback_requirement"] = ahj_setback_requirement_serialzer.data 
             
             ahj_ground_mount_requirement = AHJGroundMountRequirement.objects.filter(ahj_id=id).first()
             if ahj_ground_mount_requirement:
@@ -135,10 +135,10 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
             #     ahj_roof_mount_requirement_serializer = AHJRoofMountRequirementSerializer(ahj_roof_mount_requirement)
             #     data["ahj_roof_mount_requirement"] = ahj_roof_mount_requirement_serializer.data
 
-            ahj_solar_fire_requirement = AHJSolarFireRequirements.objects.filter(ahj_id=id).first()
-            if ahj_solar_fire_requirement:
-                ahj_environmental_data_serializer = AHJSolarFireRequirementsSerializer(ahj_solar_fire_requirement)
-                data["ahj_solar_fire_requirement"] = ahj_environmental_data_serializer.data
+            # ahj_solar_fire_requirement = AHJSolarFireRequirements.objects.filter(ahj_id=id).first()
+            # if ahj_solar_fire_requirement:
+            #     ahj_environmental_data_serializer = AHJSolarFireRequirementsSerializer(ahj_solar_fire_requirement)
+            #     data["ahj_solar_fire_requirement"] = ahj_environmental_data_serializer.data
 
             ahj_permits = AHJPermits.objects.filter(ahj_id=id).first()
             if ahj_permits:
