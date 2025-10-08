@@ -52,7 +52,7 @@ class AHJSolarRequirement(models.Model):
 
     class Meta:
         db_table = "ahj_solar_requirement"
-
+    
     def save(self, *args, **kwargs):
         """Update 'updated_at' every time the object is saved."""
         self.updated_at = current_timestamp()
