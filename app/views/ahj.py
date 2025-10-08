@@ -52,19 +52,20 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
             data={
                 "ahj":ahj_serializer.data,
                 # "ahj_solar_requirement":None,
-                "ahj_electrical_requirement":None,
+                "ahj_environmental_data":None,
                 "ahj_structural_requirement":None,
-                "ahj_setback_requirement":None,
+                "ahj_electrical_requirement":None,
+                # "ahj_setback_requirement":None,
                 "ahj_ground_mount_requirement":None,
                 # "ahj_roof_mount_requirement": None,
-                "ahj_solar_fire_requirement": None,
+                # "ahj_solar_fire_requirement": None,
                 "state_specific_ic_codes": None,
-                "ahj_safety_instructions":None,
-                "ahj_environmental_data":None,
-                "ahj_label": None,
-                "reference_codes": [],
                 "permit_required": None,
                 "ahj_permits": None,
+                "ahj_label": None,
+                "ahj_safety_instructions":None,
+                "reference_codes": [],
+                
                 # "remarks": []
             }
             ahj_solar_requirement = AHJSolarRequirement.objects.filter(ahj_id=id).first()
