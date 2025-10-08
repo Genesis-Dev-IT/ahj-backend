@@ -59,7 +59,7 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 "ahj_ground_mount_requirement":None,
                 "ahj_roof_mount_requirement": None,
                 # "ahj_solar_fire_requirement": None,
-                "permit_required": None,
+                # "permit_required": None,
                 "ahj_permits": None,
                 "ahj_label": None,
                 "ahj_safety_instructions":None,
@@ -117,10 +117,9 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 data["ahj_environmental_data"] = ahj_environmental_data_serializer.data
 
 
-            ahj_permit_mappings = AHJPermitMapping.objects.filter(ahj_id = id).all()
-            
-            permits = [mapping.ahj_permit_type.type for mapping in ahj_permit_mappings]
-            data["permit_required"] = permits
+            # ahj_permit_mappings = AHJPermitMapping.objects.filter(ahj_id = id).all()
+            # permits = [mapping.ahj_permit_type.type for mapping in ahj_permit_mappings]
+            # data["permit_required"] = permits
 
             ahj_structural_requirement = AHJStructuralRequirement.objects.filter(ahj_id=id).first()
             if ahj_structural_requirement:
