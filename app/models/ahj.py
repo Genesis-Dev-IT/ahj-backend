@@ -349,6 +349,10 @@ class AHJRoofMountRequirement(models.Model):
 
 class AHJPermits(models.Model):
     SUBMISSION_METHOD = [("hard_copy", "Hard Copy"), ("online", "Online")]
+    SEAL_TYPE = [
+        ("wet", "Wet"),
+        ("digital", "Digital"),
+    ]
 
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey("AHJ", on_delete=models.CASCADE, related_name="permits")
@@ -365,7 +369,8 @@ class AHJPermits(models.Model):
     zoning = models.BooleanField(default=False)
     zoning_remarks = models.TextField(blank=True, null=True)
     form_of_submission = models.CharField(max_length=20, choices=SUBMISSION_METHOD, null=True, blank=True, help_text="Form of submission (Hard copy / Online)")
-    structural_and_electrical_stamp_on_planset = models.CharField(max_length=20, null=True, blank=True, help_text="Type of stamp on planset (Wet / Digital / Required)")
+    structural_and_electrical_stamp_on_planset = models.BooleanField(default=False)
+    seal_type = models.CharField( max_length=10, choices=SEAL_TYPE, null=True, blank=True, help_text="Type of engineer seal required (Wet or Digital)")
 
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)

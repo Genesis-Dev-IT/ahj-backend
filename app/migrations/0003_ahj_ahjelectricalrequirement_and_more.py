@@ -128,14 +128,6 @@ class Migration(migrations.Migration):
                 'db_table': 'zipcode_ahj_mapping',
             },
         ),
-        migrations.AddConstraint(
-            model_name='ahj',
-            constraint=models.CheckConstraint(condition=models.Q(('type__in', ['city', 'twp', 'state', 'county', 'other'])), name='location_type_valid'),
-        ),
-        migrations.AddConstraint(
-            model_name='ahjelectricalrequirement',
-            constraint=models.CheckConstraint(condition=models.Q(('ac_disconnect_type__in', ['fused', 'non-fused'])), name='ac_disconnect_type_valid'),
-        ),
         migrations.AddIndex(
             model_name='zipcodeahjmapping',
             index=models.Index(fields=['zipcode', 'ahj'], name='zipcode_ahj_zipcode_e4b09c_idx'),
