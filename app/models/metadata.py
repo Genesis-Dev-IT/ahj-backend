@@ -4,18 +4,11 @@ from django.db.models import Q
 
 class ReferenceCodes(models.Model):
     id = models.BigAutoField(primary_key=True)
-    type = models.CharField(max_length=50, db_index=True)
-    code_name = models.CharField(max_length=100, blank=True, null=True)
+    code = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(null=True, blank=True)
 
     class Meta:
         db_table = "reference_codes"
-        constraints = [
-            models.CheckConstraint(
-                check=Q(type__in=["building", "electrical", "fire", "safety"]),
-                name="reference_codes_type_valid",
-            ),
-        ]
  
     def __str__(self):
         return self.type

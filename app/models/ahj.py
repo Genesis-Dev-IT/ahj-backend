@@ -91,18 +91,17 @@ class AHJElectricalRequirement(models.Model):
 
     # Drawings & datasheets
     conductor_sizing_and_ocp = models.TextField(null=True, blank=True, help_text="Conductor sizing and overcurrent protection.")
-    conductor_material = models.TextField(null=True, blank=True, help_text="Conductor material.")
 
     # Rapid Shutdown
     is_rsd_needed = models.BooleanField(default=False)
     rsd_requirement = models.TextField(null=True, blank=True, help_text="RSD should be next to inverter (AHJ specific requirement).")
+    rsd_requirement_remarks = models.TextField(null=True, blank=True, help_text="RSD Requirement remarks.")
 
     # Disconnect requirements
     is_disconnect_required = models.BooleanField(default=False)
     disconnect_remarks = models.TextField(null=True, blank=True, help_text="Where disconnect is required (AHJ specific requirement).")
 
     # Panel, labeling & calculations
-    labeling = models.TextField(null=True, blank=True)
     is_loading_calculation_required = models.BooleanField(default=False)
     loading_calculation_remarks = models.TextField(null=True, blank=True)
 
@@ -111,16 +110,14 @@ class AHJElectricalRequirement(models.Model):
 
     # Components
     interconnection_type = models.TextField(null=True, blank=True)
-    conduit_type = models.TextField(null=True, blank=True)
     min_conduit_size = models.TextField(null=True, blank=True)
-    main_service_panel = models.TextField(null=True, blank=True)
-    spd_device = models.TextField(null=True, blank=True)
 
-    # ESS (Energy Storage Systems)
     ess_disconect = models.BooleanField(default=False)
     ess_specific_requirements = models.TextField(null=True, blank=True)
     eld_requirement = models.BooleanField(default=False)
     eld_requirement_remarks = models.BooleanField(default=False)
+
+    electrical_requirements_notes = models.TextField(null=True, blank=True, help_text="Electrical Requirement Notes")
 
     # Timestamps
     created_at = models.BigIntegerField(default=current_timestamp)
@@ -217,9 +214,8 @@ class AHJPermitMapping(models.Model):
 
 class AHJSafetyInstructions(models.Model):
     id = models.BigAutoField(primary_key=True)
-    ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="safety_instructions")
-    equipment_location_remarks = models.TextField(null=True, blank=True)
-    roof_load_remarks = models.TextField(null=True, blank=True)
+    ahj = models.ForeignKey( "AHJ", on_delete=models.CASCADE, related_name="safety_instructions")
+    instructions =  models.TextField(blank=True, default=list, help_text="List of safety instructions for AHJ")
 
     class Meta:
         db_table = "ahj_safety_instructions"
@@ -258,24 +254,21 @@ class AHJEnvironmentalData(models.Model):
     
 
 class AHJStructuralRequirement(models.Model):
-    SEAL_TYPE = [
-         ("wet", "Wet"),
-        ("digital", "Digital"),
-    ]
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="structural_requirements")
-    seal_type = models.CharField(max_length=10, choices=SEAL_TYPE, null=True, blank=True, help_text="Type of seal required (Wet or Digital)" )
     array_layout_required = models.BooleanField(default=False)
+    array_layout_required_remarks = models.TextField(null=True, blank=True, help_text="Remarks of Aaray Layout.")
     property_plan_required = models.BooleanField(default=False)
+    property_plan_required_remarks = models.TextField(null=True, blank=True, help_text="Remarks of Property Plan.")
     fire_setbacks = models.TextField(null=True, blank=True, help_text="Details about Fire Setbacks if any")
     
     roof_condition = models.CharField(max_length=255, null=True, blank=True, help_text="Condition of the roof (e.g., good, needs repair, unknown)")
-    dead_load_requirement = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Dead load requirement in psf (pounds per square foot)")
-    obstructions = models.TextField(null=True, blank=True, help_text="Notes on obstructions affecting structural requirements")
+    dead_load_requirement = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Dead load requirement in psf (pounds per square foot)") 
     max_panel_system_weight = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Maximum panel system weight in pounds per square foot (psf)")
     racking_realted_requirement = models.TextField(null=True, blank=True, help_text="Details about racking")
     framing_and_attic_details = models.TextField(null=True, blank=True, help_text="Details about Framing & Attic Details")
     wind_zone_representation_on_planset =  models.BooleanField(default=False)
+    structural_requirements_notes = models.TextField(null=True, blank=True, help_text="Structural Requirement Notes")
 
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)
@@ -296,6 +289,7 @@ class AHJRoofMountRequirement(models.Model):
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="roof_mount_requirements")
     permitted_zones = models.CharField(max_length=255, null=True, blank=True)
+    roof_mount_requirements_notes = models.TextField(null=True, blank=True, help_text="Notes for Roof Mount Requirement.")
     #   height_restriction: {
     maximum_above_roof = models.CharField(max_length=255, null=True, blank=True)
     included_in_building_height = models.BooleanField(default=False)
@@ -351,41 +345,27 @@ class AHJRoofMountRequirement(models.Model):
 
 #     def __str__(self):
 #         return f"Solar Fire Requirement for {self.ahj.name} (ID: {self.id})"
+
 class AHJPermits(models.Model):
-    ZONING_OPTIONS = [
-        ("ground_mount", "Ground Mount"),
-        ("roof_mount", "Roof Mount"),
-    ]
-
-    STAMP_TYPE = [
-        ("wet", "Wet"),
-        ("digital", "Digital"),
-    ]
-
-    SUBMISSION_METHOD = [
-        ("hard_copy", "Hard Copy"),
-        ("online", "Online"),
-    ]
+    ZONING_OPTIONS = [("ground_mount", "Ground Mount"), ("roof_mount", "Roof Mount")]
+    SUBMISSION_METHOD = [("hard_copy", "Hard Copy"), ("online", "Online")]
 
     id = models.BigAutoField(primary_key=True)
-    ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="permits")
+    ahj = models.ForeignKey("AHJ", on_delete=models.CASCADE, related_name="permits")
 
-    # Permit forms + remarks
-    construction_form = models.BooleanField(default=False)
-    electrical_form = models.BooleanField(default=False)
-    building_form = models.BooleanField(default=False)
-    fire_form = models.BooleanField(default=False)
+    construction_permit = models.BooleanField(default=False)
+    construction_permit_form = models.CharField(max_length=255, null=True, blank=True, help_text="Link to Construction Permit form")
+    electrical_permit = models.BooleanField(default=False)
+    electrical_permit_form = models.CharField(max_length=255, null=True, blank=True, help_text="Link to Electrical Permit form")
+    building_permit = models.BooleanField(default=False)
+    building_permit_form = models.CharField(max_length=255, null=True, blank=True, help_text="Link to Building Permit form")
+    fire_permit = models.BooleanField(default=False)
+    fire_permit_form = models.CharField(max_length=255, null=True, blank=True, help_text="Link to Fire Permit form")
 
-    # Zoning applicability
-    zoning = models.CharField(max_length=50, choices=ZONING_OPTIONS, null=True,blank=True,help_text="Applicable zoning type (Ground mount or Roof mount)")
-   
-    # Stamping
-    structural_and_electrical_stamp_on_planset = models.CharField(max_length=10, choices=STAMP_TYPE,null=True, blank=True, help_text="Type of stamp on planset (Wet/Digital)")
+    zoning = models.CharField(max_length=50, choices=ZONING_OPTIONS, null=True, blank=True, help_text="Applicable zoning type (Ground mount or Roof mount)")
+    form_of_submission = models.CharField(max_length=20, choices=SUBMISSION_METHOD, null=True, blank=True, help_text="Form of submission (Hard copy / Online)")
+    structural_and_electrical_stamp_on_planset = models.CharField(max_length=20, null=True, blank=True, help_text="Type of stamp on planset (Wet / Digital / Required)")
 
-    # Submission method
-    form_of_submission = models.CharField(max_length=20, choices=SUBMISSION_METHOD, null=True, blank=True,help_text="Form of submission (Hard copy / Online)" )
-
-    # Timestamps
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)
 
@@ -402,6 +382,5 @@ class AHJPermits(models.Model):
 
     def __str__(self):
         return f"Permits for {self.ahj.name} (ID: {self.id})"
-
 
     

@@ -57,15 +57,14 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 "ahj_electrical_requirement":None,
                 # "ahj_setback_requirement":None,
                 "ahj_ground_mount_requirement":None,
-                # "ahj_roof_mount_requirement": None,
+                "ahj_roof_mount_requirement": None,
                 # "ahj_solar_fire_requirement": None,
-                "state_specific_ic_codes": None,
                 "permit_required": None,
                 "ahj_permits": None,
                 "ahj_label": None,
                 "ahj_safety_instructions":None,
+                "state_specific_ic_codes": None,
                 "reference_codes": [],
-                
                 # "remarks": []
             }
             ahj_solar_requirement = AHJSolarRequirement.objects.filter(ahj_id=id).first()
@@ -80,9 +79,9 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 state_specific_ic_codes_serializer = StateSpecificInformationSerializer(state_specific_ic_codes, many=True)
                 data["state_specific_ic_codes"] = [item["state_specific_ic_code"] for item in state_specific_ic_codes_serializer.data]
 
-            # if ahj_solar_requirement: 
-            #     ahj_solar_requirement_serializer = AHJSolarRequirementSerializer(ahj_solar_requirement)
-            #     data["ahj_solar_requirement"] = ahj_solar_requirement_serializer.data
+            if ahj_solar_requirement: 
+                ahj_solar_requirement_serializer = AHJSolarRequirementSerializer(ahj_solar_requirement)
+                data["ahj_solar_requirement"] = ahj_solar_requirement_serializer.data
             
             ahj_electrical_requirement = AHJElectricalRequirement.objects.filter(ahj_id=id).first()
             if ahj_electrical_requirement:
@@ -131,10 +130,10 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 ahj_structural_requirement_serializer = AHJStructuralRequirementSerializer(ahj_structural_requirement)
                 data["ahj_structural_requirement"] = ahj_structural_requirement_serializer.data
             
-            # ahj_roof_mount_requirement = AHJRoofMountRequirement.objects.filter(ahj_id=id).first()
-            # if ahj_roof_mount_requirement:
-            #     ahj_roof_mount_requirement_serializer = AHJRoofMountRequirementSerializer(ahj_roof_mount_requirement)
-            #     data["ahj_roof_mount_requirement"] = ahj_roof_mount_requirement_serializer.data
+            ahj_roof_mount_requirement = AHJRoofMountRequirement.objects.filter(ahj_id=id).first()
+            if ahj_roof_mount_requirement:
+                ahj_roof_mount_requirement_serializer = AHJRoofMountRequirementSerializer(ahj_roof_mount_requirement)
+                data["ahj_roof_mount_requirement"] = ahj_roof_mount_requirement_serializer.data
 
             # ahj_solar_fire_requirement = AHJSolarFireRequirements.objects.filter(ahj_id=id).first()
             # if ahj_solar_fire_requirement:
