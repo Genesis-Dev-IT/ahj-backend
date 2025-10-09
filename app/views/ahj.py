@@ -131,9 +131,9 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
             #     ahj_environmental_data_serializer = AHJSolarFireRequirementsSerializer(ahj_solar_fire_requirement)
             #     data["ahj_solar_fire_requirement"] = ahj_environmental_data_serializer.data
 
-            ahj_permits = AHJPermits.objects.filter(ahj_id=id).first()
+            ahj_permits = AHJPermits.objects.filter(ahj_id=id).all()
             if ahj_permits:
-                ahj_permits_serializer = AHJPermitsSerializer(ahj_permits)
+                ahj_permits_serializer = AHJPermitsSerializer(ahj_permits, many=True)
                 data["ahj_permits"] = ahj_permits_serializer.data
 
 

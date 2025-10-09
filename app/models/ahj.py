@@ -93,8 +93,7 @@ class AHJElectricalRequirement(models.Model):
     conductor_sizing_and_ocp = models.TextField(null=True, blank=True, help_text="Conductor sizing and overcurrent protection.")
 
     # Rapid Shutdown
-    is_rsd_needed = models.BooleanField(default=False)
-    rsd_requirement = models.TextField(null=True, blank=True, help_text="RSD should be next to inverter (AHJ specific requirement).")
+    rsd_needed = models.BooleanField(default=False)
     rsd_requirement_remarks = models.TextField(null=True, blank=True, help_text="RSD Requirement remarks.")
 
     # Disconnect requirements
@@ -115,7 +114,7 @@ class AHJElectricalRequirement(models.Model):
     ess_disconect = models.BooleanField(default=False)
     ess_specific_requirements = models.TextField(null=True, blank=True)
     eld_requirement = models.BooleanField(default=False)
-    eld_requirement_remarks = models.BooleanField(default=False)
+    eld_requirement_remarks = models.TextField(null=True, blank=True)
     grounding_remarks = models.TextField(null=True, blank=True)
 
     electrical_requirements_notes = models.TextField(null=True, blank=True, help_text="Electrical Requirement Notes")
@@ -256,11 +255,10 @@ class AHJStructuralRequirement(models.Model):
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="structural_requirements")
     array_layout_remarks = models.TextField(null=True, blank=True, help_text="Remarks of Aaray Layout.")
     property_plan_remarks = models.TextField(null=True, blank=True, help_text="Remarks of Property Plan.")
-    fire_setback_remarks = models.TextField(null=True, blank=True, help_text="Details about Fire Setbacks if any")
+    setbacks = models.TextField(null=True, blank=True, help_text="Details about Fire Setbacks if any")
     dead_load_requirement = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Dead load requirement in psf (pounds per square foot)") 
     max_panel_system_weight = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Maximum panel system weight in pounds per square foot (psf)")
     racking_realted_requirement = models.TextField(null=True, blank=True, help_text="Details about racking")
-    framing_and_attic_details = models.TextField(null=True, blank=True, help_text="Details about Framing & Attic Details")
     wind_zone_representation_on_planset =  models.BooleanField(default=False)
     structural_requirements_notes = models.TextField(null=True, blank=True, help_text="Structural Requirement Notes")
 
@@ -283,16 +281,10 @@ class AHJRoofMountRequirement(models.Model):
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="roof_mount_requirements")
     permitted_zones = models.TextField(null=True, blank=True, help_text="Permitted zone details.")
+    framing_and_attic_details = models.TextField(null=True, blank=True, help_text="Details about Framing & Attic Details")
     roof_mount_requirements_notes = models.TextField(null=True, blank=True, help_text="Notes for Roof Mount Requirement.")
-    #   height_restriction: {
-    height_restriction_remarks = models.TextField(null=True, blank=True, help_text="Remarks for height restriction")
-    #   },
-    #   installation_requirements: {
-    #   }
-    #     #   restrictions: {
+    # height_restriction_remarks = models.TextField(null=True, blank=True, help_text="Remarks for height restriction")
     restriction_remarks = models.TextField(null=True, blank=True, help_text="Remarks for restriction")
-    #   }
-
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)
 
@@ -343,17 +335,10 @@ class AHJPermits(models.Model):
 
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey("AHJ", on_delete=models.CASCADE, related_name="permits")
-
-    construction_permit = models.BooleanField(default=False)
-    construction_permit_form = models.CharField(max_length=255, null=True, blank=True, help_text="Link to Construction Permit form")
-    electrical_permit = models.BooleanField(default=False)
-    electrical_permit_form = models.CharField(max_length=255, null=True, blank=True, help_text="Link to Electrical Permit form")
-    building_permit = models.BooleanField(default=False)
-    building_permit_form = models.CharField(max_length=255, null=True, blank=True, help_text="Link to Building Permit form")
-    fire_permit = models.BooleanField(default=False)
-    fire_permit_form = models.CharField(max_length=255, null=True, blank=True, help_text="Link to Fire Permit form")
-    zoning = models.BooleanField(default=False)
-    zoning_remarks = models.TextField(blank=True, null=True)
+    name = models.CharField(max_length=255, null=True, blank=True)
+    url = models.CharField(max_length=255, null=True, blank=True)
+    fees = models.FloatField(null=True, blank=True)
+    remarks = models.TextField(blank=True, null=True)
     form_of_submission = models.CharField(max_length=20, choices=SUBMISSION_METHOD, null=True, blank=True, help_text="Form of submission (Hard copy / Online)")
     structural_and_electrical_stamp = models.CharField( max_length=10, choices=SEAL_TYPE, null=True, blank=True, help_text="Type of engineer seal required (Wet or Digital)")
 

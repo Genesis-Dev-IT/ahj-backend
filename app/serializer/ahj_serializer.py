@@ -70,22 +70,9 @@ class AHJStructuralRequirementSerializer(serializers.ModelSerializer):
         exclude = ('id', 'ahj', 'created_at', 'updated_at',)
 
 class AHJRoofMountRequirementSerializer(serializers.ModelSerializer):
-    height_restriction = serializers.SerializerMethodField()
-    restrictions = serializers.SerializerMethodField()
-
     class Meta:
         model = AHJRoofMountRequirement
-        fields = ["permitted_zones", "height_restriction", "restrictions"]
-    
-    def get_height_restriction(self, object: AHJRoofMountRequirement):
-        return {
-            "height_restriction_remarks": object.height_restriction_remarks,
-        }
-
-    def get_restrictions(self, object: AHJRoofMountRequirement):
-        return {
-            "restriction_remarks": object.restriction_remarks
-        }
+        exclude = ('id', 'ahj', 'created_at', 'updated_at',)
     
 
 # class AHJSolarFireRequirementsSerializer(serializers.ModelSerializer):
