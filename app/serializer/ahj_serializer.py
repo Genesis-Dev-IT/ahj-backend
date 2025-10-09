@@ -71,31 +71,20 @@ class AHJStructuralRequirementSerializer(serializers.ModelSerializer):
 
 class AHJRoofMountRequirementSerializer(serializers.ModelSerializer):
     height_restriction = serializers.SerializerMethodField()
-    installation_requirements = serializers.SerializerMethodField()
     restrictions = serializers.SerializerMethodField()
 
     class Meta:
         model = AHJRoofMountRequirement
-        fields = ["permitted_zones", "height_restriction", "installation_requirements", "restrictions"]
+        fields = ["permitted_zones", "height_restriction", "restrictions"]
     
     def get_height_restriction(self, object: AHJRoofMountRequirement):
         return {
-            "maximum_above_roof": object.maximum_above_roof,
-            "included_in_building_height": object.included_in_building_height
-        }
-
-    def get_installation_requirements(self, object: AHJRoofMountRequirement):
-        return {
-            "roof_boundary_setback": object.roof_boundary_setback,
-            "manual_shutoff_required": object.manual_shutoff_required,
-            "shutoff_location": object.shutoff_location,
-            "nec_placard_required": object.nec_placard_required,
-            "placard_location": object.placard_location
+            "height_restriction_remarks": object.height_restriction_remarks,
         }
 
     def get_restrictions(self, object: AHJRoofMountRequirement):
         return {
-            "front_yard": object.front_yard
+            "restriction_remarks": object.restriction_remarks
         }
     
 

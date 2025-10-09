@@ -28,7 +28,7 @@ class AHJ(models.Model):
         db_table = "ahj"
         constraints = [
             models.CheckConstraint(
-                check=Q(type__in=["city", "twp", "state", "county", "other"]),
+                check=Q(type__in=["city", "township", "state", "county", "other"]),
                 name="location_type_valid",
             ),
         ]
@@ -157,10 +157,7 @@ class AHJElectricalRequirement(models.Model):
 class AHJGroundMountRequirement(models.Model):
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE)
-    
-    setback = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Minimum required setback distance in feet")
-    setback_remarks = models.TextField(null=True, blank=True, help_text="Additional notes or remarks about setbacks")
-    location_of_ground_mount = models.CharField(max_length=255, null=True, blank=True, help_text="Location description or zoning area for ground mount installation")
+    setback = models.TextField(null=True, blank=True, help_text="Setback Details.")
 
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)
@@ -257,13 +254,9 @@ class AHJEnvironmentalData(models.Model):
 class AHJStructuralRequirement(models.Model):
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="structural_requirements")
-    array_layout_required = models.BooleanField(default=False)
-    array_layout_required_remarks = models.TextField(null=True, blank=True, help_text="Remarks of Aaray Layout.")
-    property_plan_required = models.BooleanField(default=False)
-    property_plan_required_remarks = models.TextField(null=True, blank=True, help_text="Remarks of Property Plan.")
-    fire_setbacks = models.TextField(null=True, blank=True, help_text="Details about Fire Setbacks if any")
-    
-    roof_condition = models.CharField(max_length=255, null=True, blank=True, help_text="Condition of the roof (e.g., good, needs repair, unknown)")
+    array_layout_remarks = models.TextField(null=True, blank=True, help_text="Remarks of Aaray Layout.")
+    property_plan_remarks = models.TextField(null=True, blank=True, help_text="Remarks of Property Plan.")
+    fire_setback_remarks = models.TextField(null=True, blank=True, help_text="Details about Fire Setbacks if any")
     dead_load_requirement = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Dead load requirement in psf (pounds per square foot)") 
     max_panel_system_weight = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Maximum panel system weight in pounds per square foot (psf)")
     racking_realted_requirement = models.TextField(null=True, blank=True, help_text="Details about racking")
@@ -289,21 +282,15 @@ class AHJStructuralRequirement(models.Model):
 class AHJRoofMountRequirement(models.Model):
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="roof_mount_requirements")
-    permitted_zones = models.CharField(max_length=255, null=True, blank=True)
+    permitted_zones = models.TextField(null=True, blank=True, help_text="Permitted zone details.")
     roof_mount_requirements_notes = models.TextField(null=True, blank=True, help_text="Notes for Roof Mount Requirement.")
     #   height_restriction: {
-    maximum_above_roof = models.CharField(max_length=255, null=True, blank=True)
-    included_in_building_height = models.BooleanField(default=False)
+    height_restriction_remarks = models.TextField(null=True, blank=True, help_text="Remarks for height restriction")
     #   },
     #   installation_requirements: {
-    roof_boundary_setback = models.CharField(max_length=255, null=True, blank=True)
-    manual_shutoff_required = models.BooleanField(default=False)
-    shutoff_location = models.CharField(max_length=255, null=True, blank=True)
-    nec_placard_required = models.BooleanField(default=False)
-    placard_location = models.CharField(max_length=255, null=True, blank=True)
     #   }
     #     #   restrictions: {
-    front_yard = models.CharField(max_length=255, null=True, blank=True)
+    restriction_remarks = models.TextField(null=True, blank=True, help_text="Remarks for restriction")
     #   }
 
     created_at = models.BigIntegerField(default=current_timestamp)
@@ -348,7 +335,7 @@ class AHJRoofMountRequirement(models.Model):
 #         return f"Solar Fire Requirement for {self.ahj.name} (ID: {self.id})"
 
 class AHJPermits(models.Model):
-    SUBMISSION_METHOD = [("hard_copy", "Hard Copy"), ("online", "Online")]
+    SUBMISSION_METHOD = [("offline", "Offline"), ("online", "Online")]
     SEAL_TYPE = [
         ("wet", "Wet"),
         ("digital", "Digital"),
@@ -365,12 +352,10 @@ class AHJPermits(models.Model):
     building_permit_form = models.CharField(max_length=255, null=True, blank=True, help_text="Link to Building Permit form")
     fire_permit = models.BooleanField(default=False)
     fire_permit_form = models.CharField(max_length=255, null=True, blank=True, help_text="Link to Fire Permit form")
-
     zoning = models.BooleanField(default=False)
     zoning_remarks = models.TextField(blank=True, null=True)
     form_of_submission = models.CharField(max_length=20, choices=SUBMISSION_METHOD, null=True, blank=True, help_text="Form of submission (Hard copy / Online)")
-    structural_and_electrical_stamp_on_planset = models.BooleanField(default=False)
-    seal_type = models.CharField( max_length=10, choices=SEAL_TYPE, null=True, blank=True, help_text="Type of engineer seal required (Wet or Digital)")
+    structural_and_electrical_stamp = models.CharField( max_length=10, choices=SEAL_TYPE, null=True, blank=True, help_text="Type of engineer seal required (Wet or Digital)")
 
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)
@@ -378,7 +363,7 @@ class AHJPermits(models.Model):
     class Meta:
         db_table = "ahj_permits"
         constraints = [
-            models.CheckConstraint(check=Q(form_of_submission__in=["hard_copy", "online"]) | Q(form_of_submission__isnull=True), name="valid_submission_method"),
+            models.CheckConstraint(check=Q(form_of_submission__in=["offline", "online"]) | Q(form_of_submission__isnull=True), name="valid_submission_method"),
         ]
 
     def save(self, *args, **kwargs):
