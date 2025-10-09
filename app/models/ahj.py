@@ -255,7 +255,7 @@ class AHJStructuralRequirement(models.Model):
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="structural_requirements")
     array_layout_remarks = models.TextField(null=True, blank=True, help_text="Remarks of Aaray Layout.")
     property_plan_remarks = models.TextField(null=True, blank=True, help_text="Remarks of Property Plan.")
-    setbacks = models.TextField(null=True, blank=True, help_text="Details about Fire Setbacks if any")
+    fire_setback_remarks = models.TextField(null=True, blank=True, help_text="Details about Fire Setbacks if any")
     dead_load_requirement = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Dead load requirement in psf (pounds per square foot)") 
     max_panel_system_weight = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Maximum panel system weight in pounds per square foot (psf)")
     racking_realted_requirement = models.TextField(null=True, blank=True, help_text="Details about racking")
