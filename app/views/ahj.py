@@ -134,8 +134,10 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
             ahj_permits = AHJPermits.objects.filter(ahj_id=id).all()
             if ahj_permits:
                 ahj_permits_serializer = AHJPermitsSerializer(ahj_permits, many=True)
-                data["ahj_permits"] = ahj_permits_serializer.data
-
+                data["ahj_permits"] = {
+                    'structural_and_electrical_stamp': ahj.structural_and_electrical_stamp,
+                    'permits': ahj_permits_serializer.data
+                }
 
             # create entry in api_usage after successfull api hit
             try:

@@ -43,7 +43,7 @@ class AHJGroundMountRequirementSerializer(serializers.ModelSerializer):
 class AHJDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = AHJ
-        exclude = ('id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'data_source')
+        exclude = ('id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'data_source', 'structural_and_electrical_stamp')
 
 class AHJSafetyInstructionsSerializer(serializers.ModelSerializer):
     class Meta:

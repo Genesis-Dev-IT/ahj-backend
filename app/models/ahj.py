@@ -9,6 +9,11 @@ from .metadata import (
 
 
 class AHJ(models.Model):
+    SEAL_TYPE = [
+        ("wet", "Wet"),
+        ("digital", "Digital"),
+    ]
+
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
     type = models.CharField(max_length=50, db_index=True)  # City/Twp, State, County 
@@ -19,6 +24,7 @@ class AHJ(models.Model):
     # state_specific_ic = models.ForeignKey(StateSpecificInformation, on_delete=models.CASCADE)
     website = models.CharField(max_length=255, null=True)
     data_source = models.CharField(max_length=255, null=True)
+    structural_and_electrical_stamp = models.CharField( max_length=10, choices=SEAL_TYPE, null=True, blank=True, help_text="Type of engineer seal required (Wet or Digital)")
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="ahj_created")
@@ -238,9 +244,10 @@ class AHJEnvironmentalData(models.Model):
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="environmental_data")
     wind_speed = models.FloatField(null=True, blank=True)
     exposure_category = models.CharField(max_length=10, null=True, blank=True)
-    snow_load = models.FloatField(null=True, blank=True)
     high_temp = models.FloatField(null=True, blank=True)
     min_temp = models.FloatField(null=True, blank=True)
+    average_low_temp = models.FloatField(null=True, blank=True)
+    average_high_temp = models.FloatField(null=True, blank=True)
 
     class Meta:
         db_table = "ahj_environmental_data"
@@ -255,12 +262,13 @@ class AHJStructuralRequirement(models.Model):
     ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="structural_requirements")
     array_layout_remarks = models.TextField(null=True, blank=True, help_text="Remarks of Aaray Layout.")
     property_plan_remarks = models.TextField(null=True, blank=True, help_text="Remarks of Property Plan.")
-    fire_setback_remarks = models.TextField(null=True, blank=True, help_text="Details about Fire Setbacks if any")
+    setback = models.TextField(null=True, blank=True, help_text="Details about Setbacks if any")
     dead_load_requirement = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Dead load requirement in psf (pounds per square foot)") 
     max_panel_system_weight = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Maximum panel system weight in pounds per square foot (psf)")
     racking_realted_requirement = models.TextField(null=True, blank=True, help_text="Details about racking")
     wind_zone_representation_on_planset =  models.BooleanField(default=False)
     structural_requirements_notes = models.TextField(null=True, blank=True, help_text="Structural Requirement Notes")
+    snow_load = models.FloatField(null=True, blank=True)
 
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)
@@ -328,11 +336,7 @@ class AHJRoofMountRequirement(models.Model):
 
 class AHJPermits(models.Model):
     SUBMISSION_METHOD = [("offline", "Offline"), ("online", "Online")]
-    SEAL_TYPE = [
-        ("wet", "Wet"),
-        ("digital", "Digital"),
-    ]
-
+    
     id = models.BigAutoField(primary_key=True)
     ahj = models.ForeignKey("AHJ", on_delete=models.CASCADE, related_name="permits")
     name = models.CharField(max_length=255, null=True, blank=True)
@@ -340,7 +344,10 @@ class AHJPermits(models.Model):
     fees = models.FloatField(null=True, blank=True)
     remarks = models.TextField(blank=True, null=True)
     form_of_submission = models.CharField(max_length=20, choices=SUBMISSION_METHOD, null=True, blank=True, help_text="Form of submission (Hard copy / Online)")
-    structural_and_electrical_stamp = models.CharField( max_length=10, choices=SEAL_TYPE, null=True, blank=True, help_text="Type of engineer seal required (Wet or Digital)")
+    
+    officer_name = models.CharField(max_length=100, null=True, blank=True)
+    officer_number = models.CharField(max_length=20, null=True, blank=True)
+    officer_email = models.EmailField(null=True, blank=True)
 
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)
