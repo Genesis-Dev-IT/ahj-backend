@@ -1,32 +1,38 @@
 from rest_framework import serializers
 from app.models import (
     AHJ,
-    AHJRequirement,
-    AHJSpecificRequirement,
+    AHJSolarRequirement,
+    AHJRemark,
     AHJElectricalRequirement,
-    AHJStructuralSetbackRequirement,
     AHJGroundMountRequirement,
+    AHJSafetyInstructions,
+    AHJLabel, 
+    AHJEnvironmentalData,
+    AHJStructuralRequirement,
+    AHJRoofMountRequirement,
+    AHJPermits
 )
 
-class AHJRequirementSerializer(serializers.ModelSerializer):
+class AHJSolarRequirementSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AHJRequirement
-        exclude = ('id', 'ahj', 'created_at', 'updated_at')
+        model = AHJSolarRequirement
+        exclude = ('ahj', 'created_at', 'updated_at')
 
-class AHJSpecificRequirementSerializer(serializers.ModelSerializer):
+class AHJRemarkSerializer(serializers.ModelSerializer):
+    author = serializers.CharField(source="created_by.full_name", read_only=True)
     class Meta:
-        model = AHJSpecificRequirement
-        exclude = ('id', 'ahj', 'created_at', 'updated_at')
+        model = AHJRemark
+        exclude = ('ahj', 'updated_at', 'updated_by','created_by')
 
 class AHJElectricalRequirementSerializer(serializers.ModelSerializer):
     class Meta:
         model = AHJElectricalRequirement
-        exclude = ('id', 'ahj', 'created_at', 'updated_at')
+        exclude = ('id', 'ahj', 'created_at', 'updated_at', 'pv_meter_required_remarks')
 
-class AHJStructuralSetbackRequirementSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AHJStructuralSetbackRequirement
-        exclude = ('id', 'ahj', 'created_at', 'updated_at')
+# class AHJSetbackRequirementSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = AHJSetbackRequirement
+#         exclude = ('id', 'ahj', 'created_at', 'updated_at')
 
 class AHJGroundMountRequirementSerializer(serializers.ModelSerializer):
     class Meta:
@@ -37,4 +43,47 @@ class AHJGroundMountRequirementSerializer(serializers.ModelSerializer):
 class AHJDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = AHJ
-        exclude = ('id', 'created_at', 'updated_at', 'created_by', 'updated_by')
+        exclude = ('id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'data_source', 'structural_and_electrical_stamp', 'generic_forms_allowed')
+
+class AHJSafetyInstructionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AHJSafetyInstructions
+        exclude = ('id', 'ahj')
+
+class AHJLabelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AHJLabel
+        exclude = ('id', 'ahj')
+
+
+class AHJEnvironmentalDataSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = AHJEnvironmentalData
+        exclude = ('ahj', 'id',)
+
+
+class AHJStructuralRequirementSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = AHJStructuralRequirement
+        exclude = ('id', 'ahj', 'created_at', 'updated_at',)
+
+class AHJRoofMountRequirementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AHJRoofMountRequirement
+        exclude = ('id', 'ahj', 'created_at', 'updated_at',)
+    
+
+# class AHJSolarFireRequirementsSerializer(serializers.ModelSerializer):
+
+#     class Meta:
+#         model = AHJSolarFireRequirements
+#         exclude = ('id','ahj', 'created_at', 'updated_at', )
+
+
+class AHJPermitsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = AHJPermits
+        exclude = ('id','ahj', 'created_at', 'updated_at', )

@@ -4,11 +4,24 @@
 # Ignore environment variable files anywhere in the project
 *.env
 **/.env
+postman_environment.json
 
 # Ignore virtual environment directories
 env/
 **/env/
 
-# Ignre .vscode directory
+# Ignore .vscode directory
 .vscode/
 **/.vscode/
+
+# Ignore test script
+temp.py
+
+temp1.py
+
+temp2.py
+
+temp3.py
+
+temp4.py
+

@@ -2,9 +2,10 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views import View
 from django.http import JsonResponse
+from django.db import transaction
 from app.models import (
     Utility, ProjectLevel, SolarUtility, SolarUtilityPart1Requirement, 
-    SolarUtilityPart2Requirement, ApiUsage
+    SolarUtilityPart2Requirement, ApiUsage, UtilityRemark
 )
 from rest_framework.parsers import JSONParser
 from rest_framework import status
@@ -12,7 +13,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 from app.serializer import (
     ProjectLevelSerializer, SolarUtilitySerializer, SolarUtilityPart1RequirementSerializer,
-    SolarUtilityPart2RequirementSerializer, UtilitySerializer
+    SolarUtilityPart2RequirementSerializer, UtilitySerializer, UtilityRemarkSerializer
 )
 from app.mixins import ApiTokenValidityCheckMixin
 import logging
@@ -20,35 +21,68 @@ logger = logging.getLogger(__name__)
 
 @method_decorator(csrf_exempt, name="dispatch")
 class UtilityDetailView(ApiTokenValidityCheckMixin, View):
-    def get(self, request, id):
+    def get(self, request, id=None):
+        try:
+            if not id:
+                name_filter = request.GET.get('name', '')
+                utilties = Utility.objects.filter(name__icontains=name_filter).values('id', 'name')
+
+                return JsonResponse(
+                    {
+                        "error":None,
+                        "message":"Utilities fetched successfully!",
+                        "data": list(utilties)
+                    }
+                    ,status=status.HTTP_200_OK
+                )
+        except Exception as e:
+            logger.error(f"Failed to get Utility info: {e}", exc_info=True)
+            return JsonResponse({
+                "error": "SERVER_ERROR",
+                "message": "Something went wrong while fetching utilities. Please try again later."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
         try:
             utility = get_object_or_404(Utility, id=id)
             utility_serializer = UtilitySerializer(utility)
             data={
-                "baisc_info":utility_serializer.data,
+                "basic_info":utility_serializer.data,
                 "solar_info":None,
                 "requirements":{}
             }
+
+            def convert_to_document_list(data_dict):
+                return [
+                    {"document_name": key, "required": value}
+                    for key, value in data_dict.items()
+                ]
 
             solar_utility = SolarUtility.objects.filter(utility_id=id).first()
             if solar_utility:
                 solar_utility_serializer = SolarUtilitySerializer(solar_utility)
                 data["solar_info"] = solar_utility_serializer.data
 
-            solar_utility_part1_requirement = SolarUtilityPart1Requirement.objects.filter(solar_utility=solar_utility.id).first()
-            if solar_utility_part1_requirement:
-                solar_utility_part1_requirement_serializer = SolarUtilityPart1RequirementSerializer(solar_utility_part1_requirement)
-                data["requirements"]["part1"]=solar_utility_part1_requirement_serializer.data
-            
-            solar_utility_part2_requirement = SolarUtilityPart2Requirement.objects.filter(solar_utility=solar_utility.id).first()
-            if solar_utility_part2_requirement:
-                solar_utility_part2_requirement_serializer = SolarUtilityPart2RequirementSerializer(solar_utility_part2_requirement)
-                data["requirements"]["part2"] = solar_utility_part2_requirement_serializer.data
-            
-            project_level = ProjectLevel.objects.get(id = solar_utility.project_level_id)
-            project_level_serializer = ProjectLevelSerializer(project_level)
-            data["solar_info"]["project_level"] = project_level_serializer.data
+                solar_utility_part1_requirement = SolarUtilityPart1Requirement.objects.filter(solar_utility=solar_utility.id).first()
+                if solar_utility_part1_requirement:
+                    solar_utility_part1_requirement_serializer = SolarUtilityPart1RequirementSerializer(solar_utility_part1_requirement)
+                    data["requirements"]["pre_approval"] = convert_to_document_list(solar_utility_part1_requirement_serializer.data)
+                
+                solar_utility_part2_requirement = SolarUtilityPart2Requirement.objects.filter(solar_utility=solar_utility.id).first()
+                if solar_utility_part2_requirement:
+                    solar_utility_part2_requirement_serializer = SolarUtilityPart2RequirementSerializer(solar_utility_part2_requirement)
+                    data["requirements"]["post_approval"] = convert_to_document_list(solar_utility_part2_requirement_serializer.data)
+                
+                project_level = ProjectLevel.objects.get(id = solar_utility.project_level_id)
+                project_level_serializer = ProjectLevelSerializer(project_level)
+                data["solar_info"]["project_level"] = project_level_serializer.data
+            else:
+                # No solar utility found - keep solar_info None and empty requirements
+                data["solar_info"] = None
+                data["requirements"] = {}
 
+            utility_requirement_remarks = UtilityRemark.objects.filter(utility_id=utility.id).all()
+            utility_requirement_remarks_serializer = UtilityRemarkSerializer(utility_requirement_remarks, many=True)
+            data["remarks"] = utility_requirement_remarks_serializer.data
 
             # create entry in api_usage after successfull api hit
             try:
@@ -78,6 +112,141 @@ class UtilityDetailView(ApiTokenValidityCheckMixin, View):
             logger.error(f"Failed to get Utility info: {e}", exc_info=True)
             return JsonResponse({
                 "error": "SERVER_ERROR",
-                "message": "Something went wrong while fetching user. Please try again later."
+                "message": "Something went wrong while fetching utility. Please try again later."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@method_decorator(csrf_exempt, name="dispatch")
+class UtilityRemarkView(ApiTokenValidityCheckMixin, View):
+    def get(self, request, id, remark_id=None):
+        try:
+            if not remark_id:
+                utility = get_object_or_404(Utility, id=id)
+                remarks = UtilityRemark.objects.filter(utility_id=utility.id)
+
+                remarks_serializer = UtilityRemarkSerializer(remarks, many=True)
+
+                return JsonResponse(
+                    {
+                        "error":None,
+                        "message":"Utility Requirement Remarks fetched successfully!",
+                        "data": remarks_serializer.data
+                    }
+                    ,status=status.HTTP_200_OK
+                )
+        except Http404:
+            return JsonResponse({
+                "error": "NOT_FOUND",
+                "message": f"Utility with id {id} does not exist."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Failed to get Utility info: {e}", exc_info=True)
+            return JsonResponse({
+                "error": "SERVER_ERROR",
+                "message": "Something went wrong while fetching utility. Please try again later."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        try:
+            utility = get_object_or_404(Utility, id=id)
+            remark = get_object_or_404(UtilityRemark, id=remark_id, utility_id=utility.id)
+
+            remarks_serializer = UtilityRemarkSerializer(remark)
+
+            return JsonResponse(
+                {
+                    "error":None,
+                    "message":"Utility Requirement Remark fetched successfully!",
+                    "data": remarks_serializer.data
+                }
+                ,status=status.HTTP_200_OK
+            )
+        except Http404:
+            return JsonResponse({
+                "error": "NOT_FOUND",
+                "message": f"Remark {remark_id} for Utility with id {id} does not exist."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            logger.error(f"Failed to get Utility info: {e}", exc_info=True)
+            return JsonResponse({
+                "error": "SERVER_ERROR",
+                "message": "Something went wrong while fetching utility. Please try again later."
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+    def post(self, request, id):
+        try:
+            body = JSONParser().parse(request)
+            remark_text = body.get("remark", None)
+
+            if not remark_text:
+                return JsonResponse({
+                    "error": "REMARK_TEXT_REQUIRED",
+                    "message": "The remark text must be present and not empty."
+                }, status=400)
+
+            utility = get_object_or_404(Utility, id=id)
+
+            with transaction.atomic():
+                remark = UtilityRemark.objects.create(
+                    remark = remark_text,
+                    created_by = request.api_token.user,
+                    utility = utility
+                )
+
+                remark.save()
+
+            return JsonResponse(
+                {
+                    "error":None,
+                    "message":"Utility Requirement Remark created successfully!",
+                }
+                ,status=status.HTTP_201_CREATED
+            )
+        except Http404:
+            return JsonResponse({
+                "error": "NOT_FOUND",
+                "message": f"Utility with id {id} does not exist."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Failed to get AHJ info: {e}", exc_info=True)
+            return JsonResponse({
+                "error": "SERVER_ERROR",
+                "message": "Something went wrong while fetching utility. Please try again later."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def patch(self, request, id, remark_id):
+        try:
+            body = JSONParser().parse(request)
+            remark_text = body.get("remark", None)
+
+            if not remark_text:
+                return JsonResponse({
+                    "error": "REMARK_TEXT_REQUIRED",
+                    "message": "The remark text must be present and not empty."
+                }, status=400)
+
+            utility = get_object_or_404(Utility, id=id)
+            remark = get_object_or_404(UtilityRemark, id=remark_id, utility_id=utility.id)
+
+            with transaction.atomic():
+                remark.remark = remark_text
+                remark.updated_by = request.api_token.user
+                remark.save()
+
+            return JsonResponse(
+                {
+                    "error":None,
+                    "message":"Utility Requirement Remark updated successfully!",
+                }
+                ,status=status.HTTP_200_OK
+            )
+        except Http404:
+            return JsonResponse({
+                "error": "NOT_FOUND",
+                "message": f"Remark {remark_id} for Utility with id {id} does not exist."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Failed to get Utility info: {e}", exc_info=True)
+            return JsonResponse({
+                "error": "SERVER_ERROR",
+                "message": "Something went wrong while fetching utility. Please try again later."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
