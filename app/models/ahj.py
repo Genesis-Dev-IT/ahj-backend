@@ -343,12 +343,11 @@ class AHJPermits(models.Model):
     name = models.CharField(max_length=255, null=True, blank=True)
     url = models.CharField(max_length=255, null=True, blank=True)
     fees = models.FloatField(null=True, blank=True)
-    remarks = models.TextField(blank=True, null=True)
     form_of_submission = models.CharField(max_length=20, choices=SUBMISSION_METHOD, null=True, blank=True, help_text="Form of submission (Hard copy / Online)")
-    
     officer_name = models.CharField(max_length=100, null=True, blank=True)
     officer_number = models.CharField(max_length=20, null=True, blank=True)
     officer_email = models.EmailField(null=True, blank=True)
+    remarks = models.TextField(blank=True, null=True)
 
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)
