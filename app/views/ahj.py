@@ -136,6 +136,7 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 ahj_permits_serializer = AHJPermitsSerializer(ahj_permits, many=True)
                 data["ahj_permits"] = {
                     'structural_and_electrical_stamp': ahj.structural_and_electrical_stamp,
+                    'generic_forms_allowed':ahj.generic_forms_allowed,
                     'permits': ahj_permits_serializer.data
                 }
 

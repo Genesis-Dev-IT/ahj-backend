@@ -25,6 +25,7 @@ class AHJ(models.Model):
     website = models.CharField(max_length=255, null=True)
     data_source = models.CharField(max_length=255, null=True)
     structural_and_electrical_stamp = models.CharField( max_length=10, choices=SEAL_TYPE, null=True, blank=True, help_text="Type of engineer seal required (Wet or Digital)")
+    generic_forms_allowed = models.BooleanField(default=False)
     created_at = models.BigIntegerField(default=current_timestamp)
     updated_at = models.BigIntegerField(default=current_timestamp)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="ahj_created")
