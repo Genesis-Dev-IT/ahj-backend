@@ -23,6 +23,7 @@ class AHJ(models.Model):
     country = models.CharField(max_length=100, default="USA")
     # state_specific_ic = models.ForeignKey(StateSpecificInformation, on_delete=models.CASCADE)
     website = models.CharField(max_length=255, null=True)
+    parent_county_website = models.CharField(max_length=255, null=True)
     data_source = models.CharField(max_length=255, null=True)
     structural_and_electrical_stamp = models.CharField( max_length=10, choices=SEAL_TYPE, null=True, blank=True, help_text="Type of engineer seal required (Wet or Digital)")
     generic_forms_allowed = models.BooleanField(default=False)
@@ -342,7 +343,6 @@ class AHJPermits(models.Model):
     ahj = models.ForeignKey("AHJ", on_delete=models.CASCADE, related_name="permits")
     name = models.CharField(max_length=255, null=True, blank=True)
     url = models.CharField(max_length=255, null=True, blank=True)
-    fees = models.FloatField(null=True, blank=True)
     form_of_submission = models.CharField(max_length=20, choices=SUBMISSION_METHOD, null=True, blank=True, help_text="Form of submission (Hard copy / Online)")
     officer_name = models.CharField(max_length=100, null=True, blank=True)
     officer_number = models.CharField(max_length=20, null=True, blank=True)
@@ -366,3 +366,48 @@ class AHJPermits(models.Model):
         return f"Permits for {self.ahj.name} (ID: {self.id})"
 
     
+from django.db import models
+
+
+from django.db import models
+
+
+class Fee(models.Model):
+    SUBCODE_CHOICES = [
+        ("building", "Building Subcode"),
+        ("fire", "Fire Subcode"),
+        ("electric", "Electric Subcode"),
+        ("plumbing", "Plumbing Subcode"),
+        ("mechanical", "Mechanical Subcode"),
+        ("certificate", "Certificate & Other Fees"),
+        ("other", "Other")
+    ]
+
+    type = models.CharField(
+        max_length=50,
+        choices=SUBCODE_CHOICES,
+        help_text="Type of subcode this fee belongs to"
+    )
+    item = models.CharField(
+        max_length=255,
+        help_text="Description of the item or fee purpose"
+    )
+    fee = models.CharField(
+        max_length=255,
+        help_text="Fee value or rule, e.g. '$75', '$30 per $1,000 cost', '0.045 per cubic foot'"
+    )
+    notes = models.TextField(blank=True, null=True)
+    code_section = models.CharField(max_length=50, blank=True, null=True, default="§64-3")
+    township = models.CharField(max_length=255, default="Alexandria, NJ")
+    source_url = models.URLField(blank=True, null=True)
+    retrieved_on = models.DateField(blank=True, null=True)
+    ahj = models.ForeignKey(AHJ, on_delete=models.CASCADE, related_name="fees")
+    
+    class Meta:
+        verbose_name = "Fee"
+        verbose_name_plural = "Fees"
+        ordering = ["type", "id"]
+
+    def __str__(self):
+        return f"{self.get_type_display()} - {self.item}"
+

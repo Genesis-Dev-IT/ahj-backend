@@ -4,7 +4,7 @@ from .ahj import (
     AHJ, AHJSolarRequirement, AHJRemark, AHJElectricalRequirement, 
     AHJGroundMountRequirement, ZipcodeAHJMapping, AHJLabel, AHJSafetyInstructions, 
     AHJCodeMapping, AHJEnvironmentalData, AHJPermitMapping, AHJStructuralRequirement,
-    AHJRoofMountRequirement, AHJPermits,
+    AHJRoofMountRequirement, AHJPermits, Fee
     )
 
 from .utility import(

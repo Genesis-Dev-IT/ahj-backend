@@ -10,7 +10,8 @@ from app.models import (
     AHJEnvironmentalData,
     AHJStructuralRequirement,
     AHJRoofMountRequirement,
-    AHJPermits
+    AHJPermits,
+    Fee
 )
 
 class AHJSolarRequirementSerializer(serializers.ModelSerializer):
@@ -87,3 +88,10 @@ class AHJPermitsSerializer(serializers.ModelSerializer):
     class Meta:
         model = AHJPermits
         exclude = ('id','ahj', 'created_at', 'updated_at', )
+
+class FeeSerializer(serializers.ModelSerializer):
+    type_display = serializers.CharField(source="get_type_display", read_only=True)
+
+    class Meta:
+        model = Fee
+        exclude = ["id", ]

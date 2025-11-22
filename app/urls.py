@@ -9,6 +9,7 @@ from app.views.user_subscription import UserSuscriptionDetailView
 from app.views.api_usage import AHJSearchHistoryView, UtilitySearchHistoryView
 from app.views.verticals import Verticals
 from app.views.metadata import ReferenceCodesView, PermitTypeView, StandardLabelsView
+from app.views.fee import FeeListView, FeeDetailView
 
 
 urlpatterns = [
@@ -38,4 +39,7 @@ urlpatterns = [
 
     path("v1/standard-labels/", StandardLabelsView.as_view(), name="standard_labels"),
     path("v1/standard-labels/<int:id>/", StandardLabelsView.as_view(), name="standard_label_detail"),
+
+    path("v1/fees", FeeListView.as_view(), name="fee-list"),
+    path("v1/fees/<int:id>", FeeDetailView.as_view(), name="fee-detail"),
 ]

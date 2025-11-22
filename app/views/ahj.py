@@ -6,7 +6,7 @@ from django.db import transaction
 from app.models import (
         AHJ, AHJElectricalRequirement, AHJGroundMountRequirement, 
         AHJSolarRequirement, AHJRemark, ApiUsage, State, StateSpecificInformation, AHJLabel, AHJSafetyInstructions, AHJCodeMapping, 
-        AHJEnvironmentalData, PermitType, AHJPermitMapping, AHJStructuralRequirement, AHJRoofMountRequirement, AHJPermits
+        AHJEnvironmentalData, PermitType, AHJPermitMapping, AHJStructuralRequirement, AHJRoofMountRequirement, AHJPermits, Fee
     )
 from rest_framework.parsers import JSONParser
 from rest_framework import status
@@ -16,7 +16,7 @@ from app.serializer import (
     AHJDetailSerializer, AHJSolarRequirementSerializer, AHJRemarkSerializer, AHJElectricalRequirementSerializer, AHJGroundMountRequirementSerializer,
     StateSpecificInformationSerializer, AHJSafetyInstructionsSerializer, AHJLabelSerializer, AHJSafetyInstructionsSerializer,
     ReferenceCodesSerializer, AHJEnvironmentalDataSerializer, PermitTypeSerializer, AHJStructuralRequirementSerializer, AHJRoofMountRequirementSerializer,
-    AHJPermitsSerializer
+    AHJPermitsSerializer, FeeSerializer
 )
 from app.mixins import ApiTokenValidityCheckMixin
 import logging
@@ -61,6 +61,7 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                 "state_specific_ic_codes": None,
                 "reference_codes": [],
                 "ahj_safety_instructions":None,
+                "ahj_fees": None
             }
             ahj_solar_requirement = AHJSolarRequirement.objects.filter(ahj_id=id).first()
             state = State.objects.get(code=ahj.state_code)
@@ -116,6 +117,12 @@ class AHJDetailView(ApiTokenValidityCheckMixin, View):
                     'generic_forms_allowed':ahj.generic_forms_allowed,
                     'permits': ahj_permits_serializer.data
                 }
+
+            ahj = AHJ.objects.prefetch_related("fees").get(id=id)
+            if ahj.fees.exists():
+                fee_serializer = FeeSerializer(ahj.fees.all(), many=True)
+                data["ahj_fees"] = fee_serializer.data
+
 
             # create entry in api_usage after successfull api hit
             try:
